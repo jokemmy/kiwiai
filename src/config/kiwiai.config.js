@@ -1,5 +1,4 @@
 
-
 export default {
   port: 8000,
   proxy: {
@@ -12,7 +11,6 @@ export default {
   webpackConfig: [
     'webpack.config.dev.js',
     'webpack.config.dll.js',
-    'webpack.config.pro.js'
+    'webpack.config.prod.js'
   ]
 };
-

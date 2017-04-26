@@ -2,7 +2,7 @@
 if ( process.env.NODE_ENV !== 'test' ) {
   // eslint-disable-next-line
   require( 'babel-register' )({
-    only: /(src\/|mock\/|webpack.config(\.dev|\.pro|\.dll)?.js|mock.js)/,
+    only: /(src\/|mock\/|webpack.config(\.dev|\.prod|\.dll)?.js|kiwiai.mock.js)/,
     presets: [
       require.resolve( 'babel-preset-es2015' ),
       require.resolve( 'babel-preset-react' ),

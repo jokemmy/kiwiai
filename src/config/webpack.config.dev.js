@@ -1,6 +1,7 @@
 
 // import theme from './';
 import paths from '../utils/paths';
+import getEntry from '../utils/getEntry';
 import getOutput from '../utils/getOutput';
 import getSVGRules from '../utils/getSVGRules';
 import getFontRules from '../utils/getFontRules';
@@ -41,9 +42,7 @@ console.log(paths)
 
 export default {
   devtool: 'cheap-module-source-map',
-  entry: {
-    'index': './src/home.js'
-  },
+  entry: getEntry([ './src/index.js' ]),
   output: getOutput(),
   resolve: {
     modules: [

@@ -1,4 +1,5 @@
 
+import assert from 'assert';
 import { join } from 'path';
 import webpack from 'webpack';
 import { existsSync } from 'fs';
@@ -83,21 +84,23 @@ function ExtractText( options ) {
 }
 
 function DllPlugins() {
-  return [].concat(
-    existsSync( paths.dllManifest ) ? [
-      new webpack.DllReferencePlugin({
-        context: paths.appSrc,
-        manifest: require( paths.dllManifest )  // eslint-disable-line
-      })
-    ] : []
-  ).concat(
-    existsSync( join( paths.dllNodeModule, 'dlls.js' )) ? [
-      new CopyWebpackPlugin( [{
-        from: join( paths.dllNodeModule, 'dlls.js' ),
-        to: join( paths.appBuild, 'dlls.js' )
-      }])
-    ] : []
+
+  assert(
+    existsSync( paths.dllManifest ) &&
+    existsSync( join( paths.dllNodeModule, 'dlls.js' )),
+    `File dlls.js is not exsit, please use ${chalk.cyan( 'npm run dll' )} first.`
   );
+
+  return [
+    new webpack.DllReferencePlugin({
+      context: paths.appSrc,
+      manifest: require( paths.dllManifest )  // eslint-disable-line
+    }),
+    new CopyWebpackPlugin([{
+      from: join( paths.dllNodeModule, 'dlls.js' ),
+      to: join( paths.appBuild, 'dlls.js' )
+    }])
+  ];
 }
 
 function CopyPublic() {
@@ -109,7 +112,13 @@ function CopyPublic() {
   ] : [];
 }
 
-function CommonsChunk( options ) {
+function CopyWebpack( arrays ) {
+  return [
+    new CopyWebpackPlugin( arrays )
+  ];
+}
+
+function CommonsChunk( options, extends = {}) {
   return [
     new webpack.optimize.CommonsChunkPlugin( options || {
       name: 'common',
@@ -118,24 +127,26 @@ function CommonsChunk( options ) {
   ];
 }
 
-function HtmlWebpack( options ) {
-  return [
-    new HtmlWebpackPlugin( options || {
-      // favicon: './src/logo/logo.ico',
-      template: './src/index.html',
-      filename: 'index.html',
-      inject: true,
-      minify:{    //压缩HTML文件
-        removeComments: true,    //移除HTML中的注释
-        collapseWhitespace: true    //删除空白符与换行符
-      }
+function HtmlWebpack( options, extends = {}) {
 
-      // 方便实施人员修改配置 index.html 不压缩
-      // minify: {  //压缩HTML文件
-      //   removeComments: false,  //移除HTML中的注释
-      //   collapseWhitespace: false  //删除空白符与换行符
-      // }
-    })
+  if (
+    process.env.NODE_ENV === 'development' &&
+    options && Array.isArray( options.chunks ) && options.chunks.length
+  ) {
+    options.chunks.unshift( 'hmr' );
+  }
+
+  return [
+    new HtmlWebpackPlugin( options || Object.assign({
+      favicon: paths.appFav,
+      filename: 'index.html',
+      template: paths.appHtml,
+      inject: true,
+      minify:{
+        removeComments: true,
+        collapseWhitespace: true
+      }
+    }, extends ))
   ];
 }
 
@@ -160,6 +171,7 @@ export default {
   ExtractText,
   DllPlugins,
   CopyPublic,
+  CopyWebpack,
   CommonsChunk,
   HtmlWebpack
 };

@@ -1,20 +1,8 @@
-#!/usr/bin/env node
 
-require( './utils/registerBabel' );
-var fork = require( 'child_process' ).fork;
-
-function start () {
-  var p = fork( __dirname + '/index', process.argv.slice( 2 ) );
-  p.on( 'message', function ( data ) {
-    if ( data === 'RESTART' ) {
-      p.kill( 'SIGINT' );
-      start();
-    }
-  } );
-}
-
-if ( !process.send ) {
-  start();
-} else {
-  require( './server' );
-}
+// export paths from './utils/paths';
+export getEntry from './utils/getEntry';
+export getFontRules from './utils/getFontRules';
+export getLoaders from './utils/getLoaders';
+export getOutput from './utils/getOutput';
+export getPlugins from './utils/getPlugins';
+export getSVGRules from './utils/getSVGRules';
