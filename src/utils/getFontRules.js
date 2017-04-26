@@ -7,7 +7,7 @@ export default function getFontRules({
 
   const woffFontLoader = {
     test: /\.woff$/i,
-    use: [ urlLoader({
+    use: [urlLoader({
       name: fileName,
       mimetype: 'application/font-woff'
     })]
@@ -15,7 +15,7 @@ export default function getFontRules({
 
   const woff2FontLoader = {
     test: /\.woff2$/i,
-    use: [ urlLoader({
+    use: [urlLoader({
       name: fileName,
       mimetype: 'application/font-woff2'
     })]
@@ -23,7 +23,7 @@ export default function getFontRules({
 
   const ttfFontLoader = {
     test: /\.ttf$/i,
-    use: [ urlLoader({
+    use: [urlLoader({
       name: fileName,
       mimetype: 'application/octet-stream'
     })]
@@ -31,7 +31,7 @@ export default function getFontRules({
 
   const eotFontLoader = {
     test: /\.eot$/i,
-    use: [ fileLoader({
+    use: [fileLoader({
       name: fileName
     })]
   };
@@ -42,4 +42,4 @@ export default function getFontRules({
     ttfFontLoader,
     eotFontLoader
   };
-};
+}

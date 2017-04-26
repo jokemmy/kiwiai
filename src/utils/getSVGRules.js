@@ -8,7 +8,7 @@ export default function getSVGLoaders({
 
   const baseSvgLoader = {
     test: /\.svg$/i,
-    use: [ urlLoader({
+    use: [urlLoader({
       name: fileName,
       mimetype: 'image/svg+xml'
     })]
@@ -31,6 +31,5 @@ export default function getSVGLoaders({
   }
 
   return { baseSvgLoader };
-
-};
+}
 

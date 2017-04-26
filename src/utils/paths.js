@@ -2,23 +2,23 @@
 import { resolve } from 'path';
 import { realpathSync } from 'fs';
 
-function resolveOwn ( relativePath ) {
+function resolveOwn( relativePath ) {
   return resolve( __dirname, relativePath );
 }
 
-const appDirectory = realpathSync( process.cwd() );
+const appDirectory = realpathSync( process.cwd());
 const serverDirectory = resolveOwn( '../../' );
 const SEVER_CONFIG = 'kiwiai.config.js';
 const WEBPACK_DEV_CONFIG = 'webpack.config.dev.js';
 const WEBPACK_DLL_CONFIG = 'webpack.config.dll.js';
 const WEBPACK_PROD_CONFIG = 'webpack.config.prod.js';
 
-function resolveApp ( relativePath ) {
+function resolveApp( relativePath ) {
   return relativePath && typeof relativePath === 'string'
     ? resolve( appDirectory, relativePath ) : '';
 }
 
-function resolveServer ( relativePath ) {
+function resolveServer( relativePath ) {
   return relativePath && typeof relativePath === 'string'
     ? resolve( serverDirectory, relativePath ) : '';
 }
@@ -34,7 +34,6 @@ export default {
   appWebpackDllConfig: resolveApp( WEBPACK_DLL_CONFIG ),
   appWebpackProdConfig: resolveApp( WEBPACK_PROD_CONFIG ),
   appSrc: resolveApp( 'src' ),
-  appSrc: resolveApp( 'src' ),
   appBuild: resolveApp( 'dist' ),
   appPublic: resolveApp( 'public' ),
   appIndex: resolveApp( './src/index.js' ),
@@ -47,5 +46,5 @@ export default {
   dllManifest: resolveApp( 'node_modules/webpack-dlls/dlls.json' ),
   resolveApp,
   resolveServer,
-  appDirectory,
+  appDirectory
 };

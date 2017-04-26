@@ -13,19 +13,19 @@ import getConfig from './utils/getConfig';
 
 process.env.NODE_ENV = 'production';
 
-const argv = require( 'yargs' )
+const argv = require( 'yargs' ) // eslint-disable-line
   .usage( 'Usage: kiwiai build [options]' )
   .option( 'watch', {
     type: 'boolean',
     alias: 'w',
     describe: 'Watch file changes and rebuild',
-    default: false,
+    default: false
   })
   .option( 'output-path', {
     type: 'string',
     alias: 'o',
     describe: 'Specify output path',
-    default: null,
+    default: null
   })
   .help( 'h' )
   .argv;
@@ -36,7 +36,7 @@ let appBuild;
 let config;
 let prodConfig;
 
-function readConfig ( pathToFile, fileName ) {
+function readConfig( pathToFile, fileName ) {
   try {
     return getConfig( pathToFile );
   } catch ( e ) {
@@ -44,26 +44,27 @@ function readConfig ( pathToFile, fileName ) {
       chalk.red( `Failed to read ${fileName}.` ),
       e.message
     );
+    return '';
   }
 }
 
-export function build( argv ) {
+export function build( argv ) { // eslint-disable-line
 
   rcConfig = readConfig( paths.appSeverConfig, paths.SEVER_CONFIG );
   outputPath = argv.outputPath || rcConfig.outputPath || paths.outputPath;
   appBuild = paths.resolveApp( outputPath );
-  prodConfig = ( rcConfig.webpackConfig && rcConfig.webpackConfig.prod ) || paths.WEBPACK_PROD_CONFIG
-  config = readConfig( pathd.resolveApp( prodConfig ), prodConfig );
+  prodConfig = ( rcConfig.webpackConfig && rcConfig.webpackConfig.prod ) || paths.WEBPACK_PROD_CONFIG;
+  config = readConfig( paths.resolveApp( prodConfig ), prodConfig );
 
   return new Promise(( resolve ) => {
     // First, read the current file sizes in build directory.
     // This lets us display how much they changed later.
-    recursive( appBuild, ( err, fileNames ) => {
+    recursive( appBuild, ( err_, fileNames ) => {
       const previousSizeMap = ( fileNames || [])
         .filter( fileName => /\.(js|css)$/.test( fileName ))
         .reduce(( memo, fileName ) => {
           const contents = fs.readFileSync( fileName );
-          const key = removeFileNameHash( fileName );
+          const key = removeFileNameHash( fileName ); // eslint-disable-line
           memo[key] = gzipSize( contents );
           return memo;
         }, {});
@@ -73,7 +74,7 @@ export function build( argv ) {
       fs.emptyDirSync( appBuild );
 
       // Start the webpack build
-      realBuild( previousSizeMap, resolve, argv );
+      realBuild( previousSizeMap, resolve, argv ); // eslint-disable-line
     });
   });
 }
@@ -83,7 +84,7 @@ export function build( argv ) {
 function removeFileNameHash( fileName ) {
   return fileName
     .replace( appBuild, '' )
-    .replace( /\/?(.*)(\.\w+)(\.js|\.css)/, ( match, p1, p2, p3 ) => p1 + p3 );
+    .replace( /\/?(.*)(\.\w+)(\.js|\.css)/, ( match_, p1, p2_, p3 ) => p1 + p3 );
 }
 
 // Input: 1024, 2048
@@ -98,9 +99,9 @@ function getDifferenceLabel( currentSize, previousSize ) {
     return chalk.yellow( `+${fileSize}` );
   } else if ( difference < 0 ) {
     return chalk.green( fileSize );
-  } else {
-    return '';
   }
+  return '';
+
 }
 
 // Print a detailed summary of build files.
@@ -116,7 +117,7 @@ function printFileSizes( stats, previousSizeMap ) {
         folder: path.join( outputPath, path.dirname( asset.name )),
         name: path.basename( asset.name ),
         size,
-        sizeLabel: filesize( size ) + ( difference ? ` (${difference})` : '' ),
+        sizeLabel: filesize( size ) + ( difference ? ` (${difference})` : '' )
       };
     });
   assets.sort(( a, b ) => b.size - a.size );
@@ -132,7 +133,7 @@ function printFileSizes( stats, previousSizeMap ) {
       sizeLabel += rightPadding;
     }
     console.log(
-      `  ${sizeLabel}  ${chalk.dim(asset.folder + path.sep)}${chalk.cyan(asset.name)}`,
+      `  ${sizeLabel}  ${chalk.dim( asset.folder + path.sep )}${chalk.cyan( asset.name )}`,
     );
   });
 }
@@ -167,8 +168,8 @@ function doneHandler( previousSizeMap, argv, resolve, err, stats ) {
 }
 
 // Create the production build and print the deployment instructions.
-function realBuild(previousSizeMap, resolve, argv) {
-  console.log('Creating dll bundle...');
+function realBuild( previousSizeMap, resolve, argv ) {
+  console.log( 'Creating dll bundle...' );
 
   const compiler = webpack( config );
   const done = doneHandler.bind( null, previousSizeMap, argv, resolve );

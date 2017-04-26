@@ -7,22 +7,23 @@ import { sync as gzipSize } from 'gzip-size';
 import webpack from 'webpack';
 import recursive from 'recursive-readdir';
 import stripAnsi from 'strip-ansi';
-import paths from './config/paths';
+import print from './utils/print';
+import paths from './utils/paths';
 import getConfig from './utils/getConfig';
-import applyWebpackConfig, { warnIfExists } from './utils/applyWebpackConfig';
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 
-const argv = require('yargs')
-  .usage('Usage: roadhog buildDll [options]')
-  .help('h')
+const argv = require( 'yargs' ) // eslint-disable-line
+  .usage( 'Usage: roadhog buildDll [options]' )
+  .help( 'h' )
   .argv;
 
 let rcConfig;
 let appBuild;
 let config;
+let dllConfig;
 
-function readConfig ( pathToFile, fileName ) {
+function readConfig( pathToFile, fileName ) { // eslint-disable-line
   try {
     return getConfig( pathToFile );
   } catch ( e ) {
@@ -33,22 +34,22 @@ function readConfig ( pathToFile, fileName ) {
   }
 }
 
-export function build(argv) {
+export function build( argv ) { // eslint-disable-line
 
   rcConfig = readConfig( paths.appSeverConfig, paths.SEVER_CONFIG );
   appBuild = paths.dllNodeModule;
-  dllConfig = ( rcConfig.webpackConfig && rcConfig.webpackConfig.dll ) || paths.WEBPACK_DLL_CONFIG
-  config = readConfig( pathd.resolveApp( dllConfig ), dllConfig );
+  dllConfig = ( rcConfig.webpackConfig && rcConfig.webpackConfig.dll ) || paths.WEBPACK_DLL_CONFIG;
+  config = readConfig( paths.resolveApp( dllConfig ), dllConfig );
 
   return new Promise(( resolve ) => {
     // First, read the current file sizes in build directory.
     // This lets us display how much they changed later.
-    recursive( appBuild, ( err, fileNames ) => {
-      const previousSizeMap = ( fileNames || [] )
-        .filter( fileName => /\.(js|css)$/.test(fileName ))
+    recursive( appBuild, ( err_, fileNames ) => {
+      const previousSizeMap = ( fileNames || [])
+        .filter( fileName => /\.(js|css)$/.test( fileName ))
         .reduce(( memo, fileName ) => {
           const contents = fs.readFileSync( fileName );
-          const key = removeFileNameHash( fileName );
+          const key = removeFileNameHash( fileName ); // eslint-disable-line
           memo[key] = gzipSize( contents );
           return memo;
         }, {});
@@ -58,7 +59,7 @@ export function build(argv) {
       fs.emptyDirSync( appBuild );
 
       // Start the webpack build
-      realBuild( previousSizeMap, resolve, argv );
+      realBuild( previousSizeMap, resolve, argv ); // eslint-disable-line
     });
   });
 }
@@ -67,8 +68,8 @@ export function build(argv) {
 // Output: /static/js/main.js
 function removeFileNameHash( fileName ) {
   return fileName
-    .replace( appBuild, '')
-    .replace( /\/?(.*)(\.\w+)(\.js|\.css)/, ( match, p1, p2, p3 ) => p1 + p3 );
+    .replace( appBuild, '' )
+    .replace( /\/?(.*)(\.\w+)(\.js|\.css)/, ( match_, p1, p2_, p3 ) => p1 + p3 );
 }
 
 // Input: 1024, 2048
@@ -80,12 +81,12 @@ function getDifferenceLabel( currentSize, previousSize ) {
   if ( difference >= FIFTY_KILOBYTES ) {
     return chalk.red( `+${fileSize}` );
   } else if ( difference < FIFTY_KILOBYTES && difference > 0 ) {
-    return chalk.yellow(`+${fileSize}` );
+    return chalk.yellow( `+${fileSize}` );
   } else if ( difference < 0 ) {
-    return chalk.green( fileSize);
-  } else {
-    return '';
+    return chalk.green( fileSize );
   }
+  return '';
+
 }
 
 // Print a detailed summary of build files.
@@ -94,14 +95,14 @@ function printFileSizes( stats, previousSizeMap ) {
     .filter( asset => /\.(js|css)$/.test( asset.name ))
     .map(( asset ) => {
       const fileContents = fs.readFileSync( `${appBuild}/${asset.name}` );
-      const size = gzipSize(fileContents);
+      const size = gzipSize( fileContents );
       const previousSize = previousSizeMap[removeFileNameHash( asset.name )];
       const difference = getDifferenceLabel( size, previousSize );
       return {
         folder: path.join( appBuild, path.dirname( asset.name )),
         name: path.basename( asset.name ),
         size,
-        sizeLabel: filesize( size ) + ( difference ? ` (${difference})` : '' ),
+        sizeLabel: filesize( size ) + ( difference ? ` (${difference})` : '' )
       };
     });
   assets.sort(( a, b ) => b.size - a.size );
@@ -128,26 +129,25 @@ function printErrors( summary, errors ) {
   errors.forEach( err => print( err.message || err ));
 }
 
-function doneHandler(previousSizeMap, argv, resolve, err, stats) {
-  if (err) {
-    printErrors('Failed to compile.', [err]);
-    process.exit(1);
+function doneHandler( previousSizeMap, argv, resolve, err, stats ) {
+  if ( err ) {
+    printErrors( 'Failed to compile.', [err]);
+    process.exit( 1 );
   }
 
-  if (stats.compilation.errors.length) {
-    printErrors('Failed to compile.', stats.compilation.errors);
-    process.exit(1);
+  if ( stats.compilation.errors.length ) {
+    printErrors( 'Failed to compile.', stats.compilation.errors );
+    process.exit( 1 );
   }
 
-  warnIfExists();
+  print( chalk.green( 'Compiled successfully.' ));
+  print( 'File sizes after gzip:' );
+  printFileSizes( stats, previousSizeMap );
+  print();
 
-  console.log(chalk.green('Compiled successfully.'));
-  console.log();
-
-  console.log('File sizes after gzip:');
-  console.log();
-  printFileSizes(stats, previousSizeMap);
-  console.log();
+  if ( argv.analyze ) {
+    print( `Analyze result is generated at ${chalk.cyan( 'dist/stats.html' )}.` );
+  }
 
   resolve();
 }

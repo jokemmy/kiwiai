@@ -12,7 +12,7 @@ switch ( script ) {
     console.log( require( '../package.json' ).version );
     break;
   case 'build':
-  case 'start':
+  case 'server':
   case 'test':
   case 'dll':
     var result = spawn.sync(

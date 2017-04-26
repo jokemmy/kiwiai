@@ -1,14 +1,10 @@
 
-import Task from 'data.task';
+import { existsSync } from 'fs';
 import { Left, Right } from 'data.either';
-import { chain, map } from 'control.monads';
+import { map } from 'control.monads';
 import chalk from 'chalk';
-import webpack from 'webpack';
-import chokidar from 'chokidar';
+import assert from 'assert';
 import detect from 'detect-port';
-import WebpackDevServer from 'webpack-dev-server';
-import historyApiFallback from 'connect-history-api-fallback';
-import formatWebpackMessages from 'react-dev-utils/formatWebpackMessages';
 
 import paths from './utils/paths';
 import print from './utils/print';
@@ -41,17 +37,18 @@ process.env.NODE_ENV = 'development';
 
 const DEFAULT_PORT = 8000;
 const { SEVER_CONFIG, WEBPACK_DEV_CONFIG, appSeverConfig, appWebpackDevConfig } = paths;
-const watchFiles = [ appSeverConfig ];
+const watchFiles = [appSeverConfig];
 
 const server = {
-  paths, watchFiles,
+  paths,
+  watchFiles,
   port: DEFAULT_PORT,
   env: process.env.NODE_ENV,
   isInteractive: process.stdout.isTTY
 };
 
 // read config for develop server
-function readServerConfig ( server ) {
+function readServerConfig( server ) {
   try {
     const severConfig = getConfig( appSeverConfig );
     return Right( Object.assign( server, severConfig ));
@@ -65,10 +62,14 @@ function readServerConfig ( server ) {
 }
 
 // read config for webpack dev server
-function readWebpackConfig ( server ) {
+function readWebpackConfig( server ) {
   const devConfig = server.webpackConfig && server.webpackConfig.dev;
   const configFile = paths.resolveApp( devConfig ) || appWebpackDevConfig;
   try {
+    assert(
+      existsSync( configFile ),
+      `File ${devConfig || WEBPACK_DEV_CONFIG} is not exsit.`
+    );
     server.webpackDevConfig = getConfig( configFile );
     watchFiles.push( configFile );
     return Right( server );
@@ -83,17 +84,17 @@ function readWebpackConfig ( server ) {
 
 // check port
 function portChecker( server ) {
-  return new Task( function( result ) {
-    detect( server.port ).then( function( port ) {
+  return ( result ) => {
+    detect( server.port ).then(( port ) => {
       if ( port === server.port ) {
         result( server );
       } else {
-        print( chalk.yellow( `Something is already running on port ${port}.` ) );
+        print( chalk.yellow( `Something is already running on port ${port}.` ));
       }
     });
-  });
+  };
 }
 
-compose( chain( portChecker ), readServerConfig )( server ).fork(
-  compose( map( devServer ), map( compiler ), readWebpackConfig )
-);
+compose( map( portChecker ), readServerConfig )( server ).map(( callback ) => {
+  callback( compose( map( devServer ), map( compiler ), readWebpackConfig ));
+});

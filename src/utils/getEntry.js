@@ -13,16 +13,15 @@ export function getFiles( entry, cwd ) {
     return entry.reduce(( memo, entryItem ) => {
       return memo.concat( getFiles( entryItem, cwd ));
     }, []);
-  } else {
-    assert(
+  }
+  assert(
       typeof entry === 'string',
       `getEntry/getFiles: entry type should be string, but got ${typeof entry}`,
     );
-    const files = glob.sync( entry, { cwd });
-    return files.map(( file ) => {
-      return ( file.charAt( 0 ) === '.' ) ? file : `.${sep}${file}`;
-    });
-  }
+  const files = glob.sync( entry, { cwd });
+  return files.map(( file ) => {
+    return ( file.charAt( 0 ) === '.' ) ? file : `.${sep}${file}`;
+  });
 }
 
 export function getEntries( files ) {
@@ -32,7 +31,7 @@ export function getEntries( files ) {
 }
 
 export default function( entry ) {
-  const entries = getEntries( entry ? getFiles( entry, appDirectory ) : [appIndex] );
+  const entries = getEntries( entry ? getFiles( entry, appDirectory ) : [appIndex]);
   if ( process.env.NODE_ENV === 'development' ) {
     entries.hmr = require.resolve( 'react-dev-utils/webpackHotDevClient' );
   }

@@ -1,4 +1,5 @@
 
+import chalk from 'chalk';
 import assert from 'assert';
 import { join } from 'path';
 import webpack from 'webpack';
@@ -23,14 +24,14 @@ function Define( define ) {
   return new webpack.DefinePlugin(
     Object.assign({
       'process.env': {
-        NODE_ENV: JSON.stringify( process.env.NODE_ENV ),
+        NODE_ENV: JSON.stringify( process.env.NODE_ENV )
       }
     }, normalizeDefine( define ))
   );
-};
+}
 
-function LoaderOptions( options ) {
-  return new webpack.LoaderOptionsPlugin({
+function LoaderOptions( options, extendProps = {}) {
+  return new webpack.LoaderOptionsPlugin( options || Object.assign({
     options: Object.assign({
       babel: {
         babelrc: false,
@@ -46,7 +47,7 @@ function LoaderOptions( options ) {
         cacheDirectory: true
       },
       postcss() {
-        return [ autoprefixer({
+        return [autoprefixer({
           browsers: [
             '>1%',
             'last 4 versions',
@@ -56,7 +57,7 @@ function LoaderOptions( options ) {
         })];
       }
     }, options )
-  });
+  }, extendProps ));
 }
 
 function HotModuleReplacement( options ) {
@@ -67,20 +68,20 @@ function CaseSensitivePaths( options ) {
   return new CaseSensitivePathsPlugin( options );
 }
 
-function WatchMissingNodeModules( options ) {
-  return new WatchMissingNodeModulesPlugin( options || paths.appNodeModules );
+function WatchMissingNodeModules( nodeModulesPath ) {
+  return new WatchMissingNodeModulesPlugin( nodeModulesPath || paths.appNodeModules );
 }
 
 function SystemBellWebpack() {
   return new SystemBellWebpackPlugin();
 }
 
-function ExtractText( options ) {
-  return new ExtractTextPlugin(  options || {
+function ExtractText( options, extendProps = {}) {
+  return new ExtractTextPlugin( options || Object.assign({
     filename: '[name].[contenthash].css',
     disable: false,
     allChunks: true
-  });
+  }, extendProps ));
 }
 
 function DllPlugins() {
@@ -118,16 +119,16 @@ function CopyWebpack( arrays ) {
   ];
 }
 
-function CommonsChunk( options, extends = {}) {
+function CommonsChunk( options, extendProps = {}) {
   return [
-    new webpack.optimize.CommonsChunkPlugin( options || {
+    new webpack.optimize.CommonsChunkPlugin( options || Object.assign({
       name: 'common',
       filename: 'common.js'
-    })
+    }, extendProps ))
   ];
 }
 
-function HtmlWebpack( options, extends = {}) {
+function HtmlWebpack( options, extendProps = {}) {
 
   if (
     process.env.NODE_ENV === 'development' &&
@@ -142,18 +143,18 @@ function HtmlWebpack( options, extends = {}) {
       filename: 'index.html',
       template: paths.appHtml,
       inject: true,
-      minify:{
+      minify: {
         removeComments: true,
         collapseWhitespace: true
       }
-    }, extends ))
+    }, extendProps ))
   ];
 }
 
 export function combine( ...plugins ) {
   return plugins.reduce(( pluginsArray, plugin ) => {
     if ( plugin && !Array.isArray( plugin )) {
-      return pluginsArray.concat([ plugin ]);
+      return pluginsArray.concat([plugin]);
     } else if ( Array.isArray( plugin ) && plugin.length ) {
       return pluginsArray.concat( plugin );
     }

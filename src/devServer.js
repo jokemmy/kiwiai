@@ -1,5 +1,8 @@
 
+import chalk from 'chalk';
+import chokidar from 'chokidar';
 import WebpackDevServer from 'webpack-dev-server';
+import historyApiFallback from 'connect-history-api-fallback';
 import paths from './utils/paths';
 import print from './utils/print';
 import clearConsole from './utils/clearConsole';
@@ -8,19 +11,19 @@ function addMiddleware( server ) {
   const { proxy, devServer } = server;
   devServer.use( historyApiFallback({
     disableDotRule: true,
-    htmlAcceptHeaders: proxy ? [ 'text/html' ] : [ 'text/html', '*/*' ],
+    htmlAcceptHeaders: proxy ? ['text/html'] : [ 'text/html', '*/*' ]
   }));
   devServer.use( devServer.middleware );
 }
 
-function setupWatch ( server ) {
+function setupWatch( server ) {
   const { devServer, paths, watchFiles } = server;
   const watcher = chokidar.watch( watchFiles, {
     ignored: /node_modules/,
-    persistent: true,
-  } );
+    persistent: true
+  });
   watcher.on( 'change', ( path ) => {
-    print( chalk.green( `File ${path.replace( paths.appDirectory, '.' )} changed, try to restart server` );
+    print( chalk.green( `File ${path.replace( paths.appDirectory, '.' )} changed, try to restart server` ));
     watcher.close();
     devServer.close();
     process.send( 'RESTART' );
@@ -28,24 +31,24 @@ function setupWatch ( server ) {
   return server;
 }
 
-function runDevServer ( server ) {
+export default function( server ) {
 
   const host = process.env.HOST || 'localhost';
   const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
-  const { compiler, webpackConfig, port, proxy } = server;
+  const { compiler, webpackDevConfig, port, proxy } = server;
   const devServer = new WebpackDevServer( compiler, {
     hot: true,
     compress: true,
     clientLogLevel: 'none',
     contentBase: paths.appPublic,
-    publicPath: webpackConfig.output.publicPath,
+    publicPath: webpackDevConfig.output.publicPath,
     quiet: true,
     watchOptions: {
-      ignored: /node_modules/,
+      ignored: /node_modules/
     },
     https: protocol === 'https',
     host,
-    proxy: proxy || {},
+    proxy: proxy || {}
   });
 
   server.devServer = devServer;
@@ -55,12 +58,13 @@ function runDevServer ( server ) {
   devServer.listen( port, ( err ) => {
 
     if ( err ) {
-      return print( err );
+      print( err );
+      return;
     }
 
     process.send( 'READY' );
     clearConsole();
-    print( chalk.cyan( 'Starting the development server...' ))
+    print( chalk.cyan( 'Starting the development server...' ));
     // if (isInteractive) {
     //   outputMockError();
     // }

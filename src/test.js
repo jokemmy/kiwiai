@@ -5,12 +5,12 @@ import chalk from 'chalk';
 import { join } from 'path';
 import { spawn } from 'child_process';
 
-const argv = require( 'yargs' )
+const argv = require( 'yargs' ) // eslint-disable-line
   .usage( 'Usage: roadhog test [options] [mocha-options]' )
   .option( 'coverage', {
     type: 'boolean',
     describe: 'Output coverage',
-    default: false,
+    default: false
   })
   .help( 'h' )
   .argv;
@@ -25,15 +25,15 @@ const cmd = argv.coverage ?
   `${mochaBin} --compilers .:${compiler} --require ${setup} ${mochaArgs}`;
 
 const command = ( os.platform() === 'win32' ? 'cmd.exe' : 'sh' );
-const args = ( os.platform() === 'win32' ? [ '/s', '/c' ] : ['-c'] );
+const args = ( os.platform() === 'win32' ? [ '/s', '/c' ] : ['-c']);
 
-const cp = spawn( command, args.concat( [cmd] ), {
-  stdio: 'inherit',
+const cp = spawn( command, args.concat([cmd]), {
+  stdio: 'inherit'
 });
 cp.on( 'exit', () => {
   if ( argv.coverage && fs.existsSync( join( process.cwd(), 'coverage/lcov-report/index.html' ))) {
     console.log();
-    console.log(`You can see more detail in ${chalk.cyan( 'coverage/lcov-report/index.html' )}`);
+    console.log( `You can see more detail in ${chalk.cyan( 'coverage/lcov-report/index.html' )}` );
     console.log();
   }
 });

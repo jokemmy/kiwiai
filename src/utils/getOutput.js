@@ -3,7 +3,7 @@ import paths from './paths';
 
 const publicPath = '/';
 
-export default function( output = {} ) {
+export default function( output = {}) {
   return Object.assign({
     publicPath,
     pathinfo: true,
@@ -11,4 +11,4 @@ export default function( output = {} ) {
     filename: '[name].js',
     chunkFilename: '[id].chunk.js'
   }, output );
-};
+}

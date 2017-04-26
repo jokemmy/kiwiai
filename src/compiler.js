@@ -1,26 +1,29 @@
 
+import chalk from 'chalk';
+import webpack from 'webpack';
 import formatWebpackMessages from 'react-dev-utils/formatWebpackMessages';
 import clearConsole from './utils/clearConsole';
+import print from './utils/print';
 
 export default function( server ) {
 
   const host = process.env.HOST || 'localhost';
   const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
-  const { isInteractive, port, webpackConfig } = server;
-  const compiler = webpack( webpackConfig );
+  const { isInteractive, port, webpackDevConfig } = server;
+  const compiler = webpack( webpackDevConfig );
 
   compiler.plugin( 'invalid', () => print( 'Compiling...' ));
 
   let isFirstCompile = true;
-  compiler.plugin( 'done', function ( stats ) {
+  compiler.plugin( 'done', ( stats ) => {
 
     clearConsole();
-    const messages = formatWebpackMessages( stats.toJson( {}, true ));
+    const messages = formatWebpackMessages( stats.toJson({}, true ));
     const isSuccessful = !messages.errors.length && !messages.warnings.length;
     const showInstructions = isSuccessful && ( isInteractive || isFirstCompile );
 
     if ( isSuccessful ) {
-      print( chalk.green( 'Compiled successfully!' ))
+      print( chalk.green( 'Compiled successfully!' ));
     }
 
     if ( showInstructions ) {

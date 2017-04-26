@@ -1,8 +1,8 @@
 
 export default function( ...messages ) {
-  console.log();
+  console.log(); // eslint-disable-line
   messages.forEach(( message ) => {
-    console.log( message );
-    console.log();
+    console.log( message ); // eslint-disable-line
+    console.log(); // eslint-disable-line
   });
 }

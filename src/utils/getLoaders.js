@@ -1,9 +1,8 @@
 
 import omit from 'omit.js';
-import serverConfig from './getServerConfig';
 
-function loaderCreator ( loaderName, defaultOptions = {}) {
-  return function ( opts = {}) {
+function loaderCreator( loaderName, defaultOptions = {}) {
+  return function( opts = {}) {
     const { _shortName = loaderName } = opts;
     const options = _shortName ? omit( opts, ['_shortName']) : opts;
     if ( Object.keys( options ).length ) {
@@ -15,7 +14,7 @@ function loaderCreator ( loaderName, defaultOptions = {}) {
     return {
       loader: _shortName
     };
-  }
+  };
 }
 
 export const styleLoader = loaderCreator( 'style-loader' );
@@ -24,7 +23,7 @@ export const cssLoader = loaderCreator( 'css-loader', {
   importLoaders: 1
 });
 
-export const postcssLoader = loaderCreator( 'postcss-loader'/*, {
+export const postcssLoader = loaderCreator( 'postcss-loader'/* , {
   plugins: function() {
     return [ autoprefixer({
       browsers: [
@@ -35,7 +34,7 @@ export const postcssLoader = loaderCreator( 'postcss-loader'/*, {
       ]
     })];
   }
-}*/);
+}*/ );
 
 export const lessLoader = loaderCreator( 'less-loader' );
 
@@ -43,7 +42,7 @@ export const urlLoader = loaderCreator( 'url-loader', {
   limit: 10000
 });
 
-export const babelLoader = loaderCreator( 'babel-loader'/*, {
+export const babelLoader = loaderCreator( 'babel-loader'/* , {
   babelrc: false,
   presets: [
     require.resolve( 'babel-preset-es2015' ),
@@ -55,7 +54,7 @@ export const babelLoader = loaderCreator( 'babel-loader'/*, {
     require.resolve( 'babel-plugin-react-require' )
   ],
   cacheDirectory: true
-}*/);
+}*/ );
 
 export const fileLoader = loaderCreator( 'file-loader', {
   name: '[name].[ext]'

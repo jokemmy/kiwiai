@@ -8,9 +8,9 @@ export default {
       pathRewrite: { '^/api': '' }
     }
   },
-  webpackConfig: [
-    'webpack.config.dev.js',
-    'webpack.config.dll.js',
-    'webpack.config.prod.js'
-  ]
+  // webpackConfig: {
+  //   dev: 'webpack.config.dev.js',
+  //   dll: 'webpack.config.dll.js',
+  //   prod: 'webpack.config.prod.js'
+  // }
 };
