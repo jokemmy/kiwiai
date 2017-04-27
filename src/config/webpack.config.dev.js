@@ -1,7 +1,8 @@
 
-// import theme from './';
-import { paths, getEntry, getOutput, getSVGRules, getFontRules, loaders, plugins, combine } from 'kiwiai';
+import { paths, getEntry, getOutput, getSVGRules, /*getFontRules,*/
+  loaders, plugins, combine } from 'kiwiai';
 
+// const { getDefaultLoaderOptions } = plugins;
 const { styleLoader, cssLoader, postcssLoader, lessLoader, urlLoader,
   babelLoader, /* fileLoader,*/ jsonLoader, typescriptLoader } = loaders;
 
@@ -20,9 +21,13 @@ const svgRules = Object.values( getSVGRules({
   //   paths.resolveApp( 'src/assets/svg' )
   // ]
 }));
-const fontRules = Object.values( getFontRules({
-  fileName: staticFileName
-}));
+// const fontRules = Object.values( getFontRules({
+//   fileName: staticFileName
+// }));
+// const { babel } = getDefaultLoaderOptions(['babel']);
+// babel.plugins.push( 'dva-hmr' );
+// babel.plugins.push( 'transform-runtime' );
+// babel.plugins.push([ 'import', { libraryName: 'antd', style: true }]);
 
 export default {
   devtool: 'cheap-module-source-map',
@@ -92,20 +97,19 @@ export default {
       use: [jsonLoader()]
     }]
     .concat( svgRules )
-    .concat( fontRules )
   },
   plugins: combine(
     plugins.Define(),
-    plugins.LoaderOptions(),
+    plugins.LoaderOptions( /*null, { babel }*/ ),
     plugins.HotModuleReplacement(),
     plugins.CaseSensitivePaths(),
     plugins.WatchMissingNodeModules(),
     plugins.SystemBellWebpack(),
     // plugins.ExtractText(),
-    plugins.DllPlugins(),
+    // plugins.DllPlugins(),
     plugins.CopyPublic(),
     plugins.HtmlWebpack(),
-    // plugins.CommonsChunk()
+    plugins.CommonsChunk()
   ),
   // externals: config.externals,
   node: {

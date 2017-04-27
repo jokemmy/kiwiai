@@ -42,8 +42,9 @@ export default {
   appPackageJson: resolveApp( 'package.json' ),
   appNodeModules: resolveApp( 'node_modules' ),
   ownNodeModules: resolveServer( 'node_modules' ),
-  dllNodeModule: resolveApp( 'node_modules/webpack-dlls' ),
-  dllManifest: resolveApp( 'node_modules/webpack-dlls/dlls.json' ),
+  dllNodeModule: resolveApp( 'node_modules/.webpack-dlls' ),
+  dllManifest: resolveApp( 'node_modules/.webpack-dlls/dlls.json' ),
+  visualizerFile: './analyze/stats.html',
   resolveApp,
   resolveServer,
   appDirectory

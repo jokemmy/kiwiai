@@ -169,11 +169,19 @@ function doneHandler( previousSizeMap, argv, resolve, err, stats ) {
 
 // Create the production build and print the deployment instructions.
 function realBuild( previousSizeMap, resolve, argv ) {
-  console.log( 'Creating dll bundle...' );
+  if ( argv.debug ) {
+    console.log( 'Creating an development build without compress...' );
+  } else {
+    console.log( 'Creating an optimized production build...' );
+  }
 
   const compiler = webpack( config );
   const done = doneHandler.bind( null, previousSizeMap, argv, resolve );
-  compiler.run( done );
+  if ( argv.watch ) {
+    compiler.watch( 200, done );
+  } else {
+    compiler.run( done );
+  }
 }
 
 // Run.

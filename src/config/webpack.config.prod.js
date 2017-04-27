@@ -1,14 +1,19 @@
 
-// import theme from './';
-import { paths, getEntry, getOutput, getSVGRules, getFontRules, loaders, plugins, combine } from 'kiwiai';
+import { paths, getEntry, getOutput, getSVGRules, getFontRules,
+  loaders, plugins, combine } from 'kiwiai';
 
+const { /*getDefaultLoaderOptions,*/ extractTextExtract } = plugins;
 const { styleLoader, cssLoader, postcssLoader, lessLoader, urlLoader,
   babelLoader, /* fileLoader,*/ jsonLoader, typescriptLoader } = loaders;
 
-const staticFileName = 'static/[name].[ext]';
+const staticFileName = 'static/[name].$[chunkhash:4].[ext]';
 const cssModules = {
   modules: true,
   localIdentName: '[local]_[sha512:hash:base64:5]'
+};
+const output = {
+  filename: '[name].$[chunkhash:4].js',
+  chunkFilename: '[name].$[chunkhash:4].chunk.js'
 };
 const lessTheme = {
   // modifyVar: JSON.stringify( theme )
@@ -23,16 +28,16 @@ const svgRules = Object.values( getSVGRules({
 const fontRules = Object.values( getFontRules({
   fileName: staticFileName
 }));
+// const { babel } = getDefaultLoaderOptions(['babel']);
+// babel.plugins.push( 'dva-hmr' );
+// babel.plugins.push( 'transform-runtime' );
+// babel.plugins.push([ 'import', { libraryName: 'antd', style: true }]);
 
 export default {
-  devtool: 'cheap-module-source-map',
+  bail: true,
   entry: getEntry(['./src/index.js']),
-  output: getOutput(),
+  output: getOutput( output ),
   resolve: {
-    modules: [
-      paths.ownNodeModules,
-      paths.appNodeModules
-    ],
     extensions: [
       '.web.js', '.web.jsx', '.web.ts', '.web.tsx',
       '.js', '.json', '.jsx', '.ts', '.tsx'
@@ -61,29 +66,31 @@ export default {
     }, {
       test: /\.css$/,
       include: paths.appSrc,
-      use: [ styleLoader(), cssLoader( cssModules ), postcssLoader() ]
+      use: extractTextExtract({
+        fallback: [styleLoader()],
+        use: [ cssLoader( cssModules ), postcssLoader() ]
+      })
     }, {
       test: /\.less$/,
       include: paths.appSrc,
-      use: [
-        styleLoader(),
-        cssLoader( cssModules ),
-        postcssLoader(),
-        lessLoader( lessTheme )
-      ]
+      use: extractTextExtract({
+        fallback: [styleLoader()],
+        use: [ cssLoader( cssModules ), postcssLoader(), lessLoader( lessTheme ) ]
+      })
     }, {
       test: /\.css$/,
       include: paths.appNodeModules,
-      use: [ styleLoader(), cssLoader(), postcssLoader() ]
+      use: extractTextExtract({
+        fallback: [styleLoader()],
+        use: [ cssLoader(), postcssLoader() ]
+      })
     }, {
       test: /\.less$/,
       include: paths.appNodeModules,
-      use: [
-        styleLoader(),
-        cssLoader(),
-        postcssLoader(),
-        lessLoader( lessTheme )
-      ]
+      use: extractTextExtract({
+        fallback: [styleLoader()],
+        use: [ cssLoader(), postcssLoader(), lessLoader( lessTheme ) ]
+      })
     }, /* , {
       test: /\.html$/,
       use: [fileLoader()]
@@ -96,16 +103,13 @@ export default {
   },
   plugins: combine(
     plugins.Define(),
-    plugins.LoaderOptions(),
-    plugins.HotModuleReplacement(),
-    plugins.CaseSensitivePaths(),
-    plugins.WatchMissingNodeModules(),
-    plugins.SystemBellWebpack(),
-    // plugins.ExtractText(),
-    plugins.DllPlugins(),
+    plugins.LoaderOptions( /*null, { babel }*/),
     plugins.CopyPublic(),
+    plugins.UglifyJs(),
+    plugins.Visualizer(),
+    plugins.ExtractText(),
     plugins.HtmlWebpack(),
-    // plugins.CommonsChunk()
+    plugins.CommonsChunk()
   ),
   // externals: config.externals,
   node: {

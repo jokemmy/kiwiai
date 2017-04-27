@@ -3,10 +3,12 @@ import chalk from 'chalk';
 import assert from 'assert';
 import { join } from 'path';
 import webpack from 'webpack';
+import pick from 'object.pick';
 import { existsSync } from 'fs';
 import autoprefixer from 'autoprefixer';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
+import VisualizerPlugin from 'webpack-visualizer-plugin';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import SystemBellWebpackPlugin from 'system-bell-webpack-plugin';
 import CaseSensitivePathsPlugin from 'case-sensitive-paths-webpack-plugin';
@@ -20,52 +22,59 @@ function normalizeDefine( define = {}) {
   }, {});
 }
 
-function Define( define ) {
+function Define( define, extendProps = {}) {
   return new webpack.DefinePlugin(
     Object.assign({
       'process.env': {
         NODE_ENV: JSON.stringify( process.env.NODE_ENV )
       }
-    }, normalizeDefine( define ))
+    }, normalizeDefine( define || extendProps ))
   );
 }
 
-function LoaderOptions( options, extendProps = {}) {
-  return new webpack.LoaderOptionsPlugin( options || Object.assign({
-    options: Object.assign({
-      babel: {
-        babelrc: false,
-        presets: [
-          require.resolve( 'babel-preset-es2015' ),
-          require.resolve( 'babel-preset-react' ),
-          require.resolve( 'babel-preset-stage-0' )
-        ],
-        plugins: [
-          require.resolve( 'babel-plugin-add-module-exports' ),
-          require.resolve( 'babel-plugin-react-require' )
-        ],
-        cacheDirectory: true
-      },
-      postcss() {
-        return [autoprefixer({
-          browsers: [
-            '>1%',
-            'last 4 versions',
-            'Firefox ESR',
-            'not ie < 9' // React doesn't support IE8 anyway
-          ]
-        })];
-      }
-    }, options )
-  }, extendProps ));
+function getDefaultLoaderOptions( filter ) {
+
+  const defaultOptions = {
+    babel: {
+      babelrc: false,
+      presets: [
+        require.resolve( 'babel-preset-es2015' ),
+        require.resolve( 'babel-preset-react' ),
+        require.resolve( 'babel-preset-stage-0' )
+      ],
+      plugins: [
+        require.resolve( 'babel-plugin-add-module-exports' ),
+        require.resolve( 'babel-plugin-react-require' )
+      ],
+      cacheDirectory: true
+    },
+    postcss() {
+      return [autoprefixer({
+        browsers: [
+          '>1%',
+          'last 4 versions',
+          'Firefox ESR',
+          'not ie < 9' // React doesn't support IE8 anyway
+        ]
+      })];
+    }
+  };
+
+  return filter ? pick( defaultOptions, filter ) : defaultOptions;
 }
 
-function HotModuleReplacement( options ) {
-  return new webpack.HotModuleReplacementPlugin( options );
+function LoaderOptions( options = {}, extendOptions = {}) {
+  return new webpack.LoaderOptionsPlugin( Object.assign({
+    options: Object.assign( getDefaultLoaderOptions(), extendOptions )
+  }, options ));
 }
 
-function CaseSensitivePaths( options ) {
-  return new CaseSensitivePathsPlugin( options );
+function HotModuleReplacement( options, extendProps = {}) {
+  return new webpack.HotModuleReplacementPlugin( options || extendProps );
+}
+
+function CaseSensitivePaths( options, extendProps = {}) {
+  return new CaseSensitivePathsPlugin( options || extendProps );
 }
 
 function WatchMissingNodeModules( nodeModulesPath ) {
@@ -78,10 +87,14 @@ function SystemBellWebpack() {
 
 function ExtractText( options, extendProps = {}) {
   return new ExtractTextPlugin( options || Object.assign({
-    filename: '[name].[contenthash].css',
+    filename: 'style.[contenthash].css',
     disable: false,
     allChunks: true
   }, extendProps ));
+}
+
+function extractTextExtract( options, extendProps = {}) {
+  return ExtractTextPlugin.extract( options || extendProps );
 }
 
 function DllPlugins() {
@@ -113,9 +126,9 @@ function CopyPublic() {
   ] : [];
 }
 
-function CopyWebpack( arrays ) {
+function CopyWebpack( arrays, extendArrayss = []) {
   return [
-    new CopyWebpackPlugin( arrays )
+    new CopyWebpackPlugin( arrays || extendArrayss )
   ];
 }
 
@@ -151,6 +164,33 @@ function HtmlWebpack( options, extendProps = {}) {
   ];
 }
 
+function UglifyJs( options, extendProps = {}) {
+  return [
+    new webpack.optimize.UglifyJsPlugin( options || Object.assign({
+      compress: {
+        screw_ie8: true, // React doesn't support IE8
+        warnings: false
+      },
+      mangle: {
+        screw_ie8: true
+      },
+      output: {
+        comments: false,
+        screw_ie8: true,
+        ascii_only: true
+      }
+    }, extendProps ))
+  ];
+}
+
+function Visualizer( options, extendProps = {}) {
+  return [
+    new VisualizerPlugin( options || Object.assign({
+      filename: paths.visualizerFile
+    }, extendProps ))
+  ];
+}
+
 export function combine( ...plugins ) {
   return plugins.reduce(( pluginsArray, plugin ) => {
     if ( plugin && !Array.isArray( plugin )) {
@@ -174,5 +214,9 @@ export default {
   CopyPublic,
   CopyWebpack,
   CommonsChunk,
-  HtmlWebpack
+  HtmlWebpack,
+  UglifyJs,
+  Visualizer,
+  getDefaultLoaderOptions,
+  extractTextExtract
 };

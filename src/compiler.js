@@ -29,8 +29,7 @@ export default function( server ) {
     if ( showInstructions ) {
       print(
         `The server is running at: ${chalk.cyan( `${protocol}://${host}:${port}/` )}`,
-        'Note that the development build is not optimized.',
-        `To create a production build, use ${chalk.cyan( 'npm run build' )}.`
+        chalk.blue( 'Enjoy!' )
       );
       isFirstCompile = false;
     }
