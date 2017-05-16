@@ -3,9 +3,7 @@ import chalk from 'chalk';
 import assert from 'assert';
 import { join } from 'path';
 import webpack from 'webpack';
-import pick from 'object.pick';
 import { existsSync } from 'fs';
-import autoprefixer from 'autoprefixer';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import VisualizerPlugin from 'webpack-visualizer-plugin';
@@ -32,42 +30,12 @@ function Define( define, extendProps = {}) {
   );
 }
 
-function getDefaultLoaderOptions( filter ) {
 
-  const defaultOptions = {
-    babel: {
-      babelrc: false,
-      presets: [
-        require.resolve( 'babel-preset-es2015' ),
-        require.resolve( 'babel-preset-react' ),
-        require.resolve( 'babel-preset-stage-0' )
-      ],
-      plugins: [
-        require.resolve( 'babel-plugin-add-module-exports' ),
-        require.resolve( 'babel-plugin-react-require' )
-      ],
-      cacheDirectory: true
-    },
-    postcss() {
-      return [autoprefixer({
-        browsers: [
-          '>1%',
-          'last 4 versions',
-          'Firefox ESR',
-          'not ie < 9' // React doesn't support IE8 anyway
-        ]
-      })];
-    }
-  };
-
-  return filter ? pick( defaultOptions, filter ) : defaultOptions;
-}
-
-function LoaderOptions( options = {}, extendOptions = {}) {
-  return new webpack.LoaderOptionsPlugin( Object.assign({
-    options: Object.assign( getDefaultLoaderOptions(), extendOptions )
-  }, options ));
-}
+// function LoaderOptions( options = {}, extendOptions = {}) {
+//   return new webpack.LoaderOptionsPlugin( Object.assign({
+//     options: Object.assign( getDefaultLoaderOptions(), extendOptions )
+//   }, options ));
+// }
 
 function HotModuleReplacement( options, extendProps = {}) {
   return new webpack.HotModuleReplacementPlugin( options || extendProps );
@@ -204,7 +172,6 @@ export function combine( ...plugins ) {
 
 export default {
   Define,
-  LoaderOptions,
   HotModuleReplacement,
   CaseSensitivePaths,
   WatchMissingNodeModules,
@@ -217,6 +184,5 @@ export default {
   HtmlWebpack,
   UglifyJs,
   Visualizer,
-  getDefaultLoaderOptions,
   extractTextExtract
 };

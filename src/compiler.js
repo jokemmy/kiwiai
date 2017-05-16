@@ -37,12 +37,12 @@ export default function( server ) {
     // If errors exist, only show errors.
     if ( messages.errors.length ) {
       print( chalk.green( 'Failed to compile.' ));
-      messages.errors.forEach( print );
+      messages.errors.forEach(( message ) => print( message ));
 
     // Show warnings if no errors were found.
     } else if ( messages.warnings.length ) {
       print( chalk.yellow( 'Compiled with warnings.' ));
-      messages.warnings.forEach( print );
+      messages.warnings.forEach(( message ) => print( message ));
 
       // Teach some ESLint tricks.
       // console.log( 'You may use special comments to disable some warnings.' );

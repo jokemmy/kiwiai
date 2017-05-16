@@ -100,7 +100,6 @@ export default {
   },
   plugins: combine(
     plugins.Define(),
-    plugins.LoaderOptions( /*null, { babel }*/ ),
     plugins.HotModuleReplacement(),
     plugins.CaseSensitivePaths(),
     plugins.WatchMissingNodeModules(),

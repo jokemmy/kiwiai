@@ -103,7 +103,6 @@ export default {
   },
   plugins: combine(
     plugins.Define(),
-    plugins.LoaderOptions( /*null, { babel }*/),
     plugins.CopyPublic(),
     plugins.UglifyJs(),
     plugins.Visualizer(),

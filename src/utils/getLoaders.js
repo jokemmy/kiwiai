@@ -1,40 +1,68 @@
 
-import omit from 'omit.js';
+import cssnano from 'cssnano';
+import pick from 'object.pick';
+import autoprefixer from 'autoprefixer';
+import compose from './compose';
+
+
+export function getDefaultLoaderOptions( picker ) {
+
+  const defaultOptions = {
+    babel: {
+      babelrc: false,
+      presets: [
+        require.resolve( 'babel-preset-es2015' ),
+        require.resolve( 'babel-preset-react' ),
+        require.resolve( 'babel-preset-stage-0' )
+      ],
+      plugins: [
+        require.resolve( 'babel-plugin-add-module-exports' ),
+        require.resolve( 'babel-plugin-react-require' )
+      ],
+      cacheDirectory: true
+    },
+    postcss: {
+      plugins: () => [
+        autoprefixer({
+          browsers: [
+            '>1%',
+            'last 4 versions',
+            'Firefox ESR',
+            'not ie < 9' // React doesn't support IE8 anyway
+          ]
+        })].concat( process.env.NODE_ENV === 'production' ? [cssnano()] : [])
+    }
+  };
+
+  if ( picker ) {
+    return pick( defaultOptions, [picker])[picker];
+  }
+  return defaultOptions;
+}
+
 
 function loaderCreator( loaderName, defaultOptions = {}) {
-  return function( opts = {}) {
-    const { _shortName = loaderName } = opts;
-    const options = _shortName ? omit( opts, ['_shortName']) : opts;
-    if ( Object.keys( options ).length ) {
+  return compose(( options = {}) => {
+    if ( Object.keys( options ).length || Object.keys( defaultOptions ).length ) {
       return {
-        loader: _shortName,
-        options: Object.assign( defaultOptions, options )
+        loader: loaderName,
+        options: Object.assign({}, defaultOptions, options )
       };
     }
-    return {
-      loader: _shortName
-    };
-  };
+    return loaderName;
+  }, ( ...opts ) => {
+    if ( opts.length ) {
+      return Object.assign({}, ...opts );
+    }
+    return opts[0];
+  });
 }
 
 export const styleLoader = loaderCreator( 'style-loader' );
 
-export const cssLoader = loaderCreator( 'css-loader', {
-  importLoaders: 1
-});
+export const cssLoader = loaderCreator( 'css-loader' );
 
-export const postcssLoader = loaderCreator( 'postcss-loader'/* , {
-  plugins: function() {
-    return [ autoprefixer({
-      browsers: [
-        '>1%',
-        'last 4 versions',
-        'Firefox ESR',
-        'not ie < 9' // React doesn't support IE8 anyway
-      ]
-    })];
-  }
-}*/ );
+export const postcssLoader = loaderCreator( 'postcss-loader', getDefaultLoaderOptions( 'postcss' ));
 
 export const lessLoader = loaderCreator( 'less-loader' );
 
@@ -42,19 +70,7 @@ export const urlLoader = loaderCreator( 'url-loader', {
   limit: 10000
 });
 
-export const babelLoader = loaderCreator( 'babel-loader'/* , {
-  babelrc: false,
-  presets: [
-    require.resolve( 'babel-preset-es2015' ),
-    require.resolve( 'babel-preset-react' ),
-    require.resolve( 'babel-preset-stage-0' )
-  ],
-  plugins: [
-    require.resolve( 'babel-plugin-add-module-exports' ),
-    require.resolve( 'babel-plugin-react-require' )
-  ],
-  cacheDirectory: true
-}*/ );
+export const babelLoader = loaderCreator( 'babel-loader', getDefaultLoaderOptions( 'babel' ));
 
 export const fileLoader = loaderCreator( 'file-loader', {
   name: '[name].[ext]'
