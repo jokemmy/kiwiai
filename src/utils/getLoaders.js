@@ -1,5 +1,4 @@
 
-import cssnano from 'cssnano';
 import pick from 'object.pick';
 import autoprefixer from 'autoprefixer';
 import compose from './compose';
@@ -30,7 +29,8 @@ export function getDefaultLoaderOptions( picker ) {
             'Firefox ESR',
             'not ie < 9' // React doesn't support IE8 anyway
           ]
-        })].concat( process.env.NODE_ENV === 'production' ? [cssnano()] : [])
+        })
+      ]
     }
   };
 
