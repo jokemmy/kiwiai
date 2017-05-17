@@ -1,6 +1,6 @@
 {
   "name": "kiwiai",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "description": "A cool develop server.",
   "repository": "https://github.com/Syzmex/kiwiai.git",
   "bin": {
