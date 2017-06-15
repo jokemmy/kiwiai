@@ -7,7 +7,7 @@ export default {
       changeOrigin: true,
       pathRewrite: { '^/api': '' }
     }
-  },
+  }, // eslint-disable-line
   // webpackConfig: {
   //   dev: 'webpack.config.dev.js',
   //   dll: 'webpack.config.dll.js',

@@ -1,33 +1,50 @@
 
-import { paths, getEntry, getOutput, getSVGRules, /*getFontRules,*/
-  loaders, plugins, combine } from 'kiwiai';
 
-// const { getDefaultLoaderOptions } = plugins;
+// import path from 'path';
+// eslint-disable-next-line
+import { paths, getEntry, getOutput, getSVGRules, loaders, plugins, combine } from 'kiwiai';
+
+
 const { styleLoader, cssLoader, postcssLoader, lessLoader, urlLoader,
-  babelLoader, /* fileLoader,*/ jsonLoader, typescriptLoader } = loaders;
+  babelLoader, jsonLoader, typescriptLoader, getDefaultLoaderOptions } = loaders;
 
-const staticFileName = 'static/[name].[ext]';
+const staticFileName = 'static/[name].$[hash:4].[ext]';
 const cssModules = {
   modules: true,
   localIdentName: '[local]_[sha512:hash:base64:5]'
 };
-const lessTheme = {
-  // modifyVar: JSON.stringify( theme )
+const cssOptions = {
+  importLoaders: 1
 };
+const lessTheme = {
+  // modifyVars: theme
+};
+
+// 添加了 antd-mobile 的 svg 图标配置
 const svgRules = Object.values( getSVGRules({
-  fileName: staticFileName
+  fileName: staticFileName, // eslint-disable-line
   // svgSpriteDirs: [
   //   require.resolve( 'antd-mobile' ).replace( /warn\.js$/, '' ),
-  //   paths.resolveApp( 'src/assets/svg' )
+  //   paths.resolveApp( './src/assets' )
   // ]
 }));
-// const fontRules = Object.values( getFontRules({
-//   fileName: staticFileName
-// }));
-// const { babel } = getDefaultLoaderOptions(['babel']);
-// babel.plugins.push( 'dva-hmr' );
-// babel.plugins.push( 'transform-runtime' );
-// babel.plugins.push([ 'import', { libraryName: 'antd', style: true }]);
+
+// babel 的配置
+const babelOptions = getDefaultLoaderOptions( 'babel' );
+// presets
+babelOptions.presets.push( 'react-native' );
+// plugins
+// babelOptions.plugins.push( 'dva-hmr' );
+babelOptions.plugins.push( 'transform-runtime' );
+babelOptions.plugins.push( 'transform-class-properties' );
+babelOptions.plugins.push( 'transform-decorators-legacy' );
+// babelOptions.plugins.push([ 'transform-runtime', { polyfill: false }]);
+// babelOptions.plugins.push([ 'import', { libraryName: 'antd-mobile', style: true }]);
+
+// postcss 配置
+// const postcssOption = getDefaultLoaderOptions( 'postcss' );
+// postcssOption.plugins = postcssOption.plugins();
+// postcssOption.plugins.push( pxtorem({ rootValue: 100, propWhiteList: []}));
 
 export default {
   devtool: 'cheap-module-source-map',
@@ -35,20 +52,25 @@ export default {
   output: getOutput(),
   resolve: {
     modules: [
-      paths.ownNodeModules,
-      paths.appNodeModules
+      paths.appSrc,
+      paths.appNodeModules,
+      paths.ownNodeModules
     ],
     extensions: [
       '.web.js', '.web.jsx', '.web.ts', '.web.tsx',
-      '.js', '.json', '.jsx', '.ts', '.tsx'
-    ]
+      '.js', '.jsx', '.ts', '.tsx', '.json'
+    ], // eslint-disable-line
+    // alias: {
+    //   'react-native': 'react-native-web',
+    //   'react-navigation': 'react-navigation/lib/react-navigation.js'
+    // }
   },
   module: {
     noParse: [/moment.js/],
     rules: [{
       exclude: [
         /\.html$/,
-        /\.(js|jsx)$/,
+        /\.jsx?$/,
         /\.(css|less)$/,
         /\.json$/,
         /\.svg$/,
@@ -56,43 +78,48 @@ export default {
       ],
       use: [urlLoader({ name: staticFileName })]
     }, {
-      test: /\.(js|jsx)$/,
+      test: /\.jsx?$/,
       include: paths.appSrc,
-      use: [babelLoader()]
+      use: [babelLoader( babelOptions )]
     }, {
       test: /\.tsx?$/,
       include: paths.appSrc,
-      use: [ babelLoader(), typescriptLoader() ]
+      use: [ babelLoader( babelOptions ), typescriptLoader() ]
     }, {
       test: /\.css$/,
       include: paths.appSrc,
-      use: [ styleLoader(), cssLoader( cssModules ), postcssLoader() ]
+      use: [
+        styleLoader(),
+        cssLoader( cssOptions, cssModules ),
+        postcssLoader()
+      ]
     }, {
       test: /\.less$/,
       include: paths.appSrc,
       use: [
         styleLoader(),
-        cssLoader( cssModules ),
+        cssLoader( cssOptions, cssModules ),
         postcssLoader(),
         lessLoader( lessTheme )
       ]
     }, {
       test: /\.css$/,
       include: paths.appNodeModules,
-      use: [ styleLoader(), cssLoader(), postcssLoader() ]
+      use: [
+        styleLoader(),
+        cssLoader( cssOptions ),
+        postcssLoader()
+      ]
     }, {
       test: /\.less$/,
       include: paths.appNodeModules,
       use: [
         styleLoader(),
-        cssLoader(),
+        cssLoader( cssOptions ),
         postcssLoader(),
         lessLoader( lessTheme )
       ]
-    }, /* , {
-      test: /\.html$/,
-      use: [fileLoader()]
-    }*/ {
+    }, {
       test: /\.json$/,
       use: [jsonLoader()]
     }]
@@ -104,9 +131,8 @@ export default {
     plugins.CaseSensitivePaths(),
     plugins.WatchMissingNodeModules(),
     plugins.SystemBellWebpack(),
-    // plugins.ExtractText(),
-    // plugins.DllPlugins(),
     plugins.CopyPublic(),
+    plugins.DllPlugins(),
     plugins.HtmlWebpack(),
     plugins.CommonsChunk()
   ),

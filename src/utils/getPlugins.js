@@ -1,17 +1,19 @@
 
 import chalk from 'chalk';
 import assert from 'assert';
-import { join } from 'path';
 import webpack from 'webpack';
 import { existsSync } from 'fs';
+// import { join, basename } from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import VisualizerPlugin from 'webpack-visualizer-plugin';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
+import AddAssetHtmlPlugin from 'add-asset-html-webpack-plugin';
 import SystemBellWebpackPlugin from 'system-bell-webpack-plugin';
 import CaseSensitivePathsPlugin from 'case-sensitive-paths-webpack-plugin';
 import WatchMissingNodeModulesPlugin from 'react-dev-utils/WatchMissingNodeModulesPlugin';
 import paths from './paths';
+
 
 function normalizeDefine( define = {}) {
   return Object.keys( define ).reduce(( memo, key ) => {
@@ -20,16 +22,14 @@ function normalizeDefine( define = {}) {
   }, {});
 }
 
-function Define( define, extendProps = {}) {
-  return new webpack.DefinePlugin(
-    Object.assign({
-      'process.env': {
-        NODE_ENV: JSON.stringify( process.env.NODE_ENV )
-      }
-    }, normalizeDefine( define || extendProps ))
+function Define( options = {}, cover = false ) {
+  return new webpack.DefinePlugin( cover ? options : Object.assign({
+    'process.env': {
+      NODE_ENV: JSON.stringify( process.env.NODE_ENV )
+    }
+  }, normalizeDefine( options ))
   );
 }
-
 
 // function LoaderOptions( options = {}, extendOptions = {}) {
 //   return new webpack.LoaderOptionsPlugin( Object.assign({
@@ -37,12 +37,12 @@ function Define( define, extendProps = {}) {
 //   }, options ));
 // }
 
-function HotModuleReplacement( options, extendProps = {}) {
-  return new webpack.HotModuleReplacementPlugin( options || extendProps );
+function HotModuleReplacement( options = {}) {
+  return new webpack.HotModuleReplacementPlugin( options );
 }
 
-function CaseSensitivePaths( options, extendProps = {}) {
-  return new CaseSensitivePathsPlugin( options || extendProps );
+function CaseSensitivePaths( options = {}) {
+  return new CaseSensitivePathsPlugin( options );
 }
 
 function WatchMissingNodeModules( nodeModulesPath ) {
@@ -53,36 +53,48 @@ function SystemBellWebpack() {
   return new SystemBellWebpackPlugin();
 }
 
-function ExtractText( options, extendProps = {}) {
-  return new ExtractTextPlugin( options || Object.assign({
-    filename: 'style.[contenthash].css',
+function ExtractText( options = {}, cover = false ) {
+  return new ExtractTextPlugin( cover ? options : Object.assign({
+    filename: 'style.$[contenthash:4].css',
     disable: false,
     allChunks: true
-  }, extendProps ));
+  }, options ));
 }
 
-function extractTextExtract( options, extendProps = {}) {
-  return ExtractTextPlugin.extract( options || extendProps );
+function extractTextExtract( options = {}) {
+  return ExtractTextPlugin.extract( options );
 }
 
-function DllPlugins() {
+function DllReferencePlugin( options = {}, cover = false ) {
 
   assert(
-    existsSync( paths.dllManifest ) &&
-    existsSync( join( paths.dllNodeModule, 'dlls.js' )),
+    existsSync( paths.dllManifest ) && existsSync( paths.dllFile ),
     `File dlls.js is not exsit, please use ${chalk.cyan( 'npm run dll' )} first.`
   );
 
   return [
-    new webpack.DllReferencePlugin({
+    new webpack.DllReferencePlugin( cover ? options : Object.assign({
       context: paths.appSrc,
       manifest: require( paths.dllManifest )  // eslint-disable-line
-    }),
-    new CopyWebpackPlugin([{
-      from: join( paths.dllNodeModule, 'dlls.js' ),
-      to: join( paths.appBuild, 'dlls.js' )
-    }])
+    }, options )),
+    // add dlls.js to html
+    new AddAssetHtmlPlugin({
+      filepath: paths.dllFile,
+      includeSourcemap: false
+    })
   ];
+}
+
+function DllPlugin( options = {}, cover = false ) {
+  return ({ output }) => {
+    return [
+      new webpack.DllPlugin( cover ? options : Object.assign({
+        path: paths.dllManifest,
+        context: paths.appSrc,
+        name: output.library
+      }, options ))
+    ];
+  };
 }
 
 function CopyPublic() {
@@ -94,47 +106,60 @@ function CopyPublic() {
   ] : [];
 }
 
-function CopyWebpack( arrays, extendArrayss = []) {
+function CopyWebpack( arrays = []) {
   return [
-    new CopyWebpackPlugin( arrays || extendArrayss )
+    new CopyWebpackPlugin( arrays )
   ];
 }
 
-function CommonsChunk( options, extendProps = {}) {
+function CommonsChunk( options = {}, cover = false ) {
   return [
-    new webpack.optimize.CommonsChunkPlugin( options || Object.assign({
-      name: 'common',
-      filename: 'common.js'
-    }, extendProps ))
+    new webpack.optimize.CommonsChunkPlugin( cover ? options : Object.assign({
+      name: 'vendor',
+      filename: 'vendor.js'
+    }, options ))
   ];
 }
 
-function HtmlWebpack( options, extendProps = {}) {
+function HtmlWebpack( options = {}, cover = false ) {
 
-  if (
-    process.env.NODE_ENV === 'development' &&
-    options && Array.isArray( options.chunks ) && options.chunks.length
-  ) {
-    options.chunks.unshift( 'hmr' );
-  }
+  return ({ entry }) => {
 
-  return [
-    new HtmlWebpackPlugin( options || Object.assign({
-      favicon: paths.appFav,
-      filename: 'index.html',
-      template: paths.appHtml,
-      inject: true,
-      minify: {
-        removeComments: true,
-        collapseWhitespace: true
-      }
-    }, extendProps ))
-  ];
+    const chunks = Object.keys( entry );
+
+    // 热更新
+    if (
+      chunks.includes( 'hmr' ) &&
+      options &&
+      Array.isArray( options.chunks ) &&
+      !options.chunks.includes( 'hmr' )
+    ) {
+      options.chunks.push( 'hmr' );
+    }
+
+    return [
+      new HtmlWebpackPlugin( cover ? options : Object.assign({
+        favicon: paths.appFav,
+        filename: 'index.html',
+        template: paths.appHtml,
+        inject: true,
+        chunksSortMode( chunk1, chunk2 ) {
+          const chunk1Index = chunks.indexOf( chunk1.names[0]);
+          const chunk2Index = chunks.indexOf( chunk2.names[0]);
+          return chunk1Index - chunk2Index;
+        },
+        minify: {
+          removeComments: true,
+          collapseWhitespace: true
+        }
+      }, options ))
+    ];
+  };
 }
 
-function UglifyJs( options, extendProps = {}) {
+function UglifyJs( options = {}, cover = false ) {
   return [
-    new webpack.optimize.UglifyJsPlugin( options || Object.assign({
+    new webpack.optimize.UglifyJsPlugin( cover ? options : Object.assign({
       compress: {
         screw_ie8: true, // React doesn't support IE8
         warnings: false
@@ -147,15 +172,15 @@ function UglifyJs( options, extendProps = {}) {
         screw_ie8: true,
         ascii_only: true
       }
-    }, extendProps ))
+    }, options ))
   ];
 }
 
-function Visualizer( options, extendProps = {}) {
+function Visualizer( options = {}, cover = false ) {
   return [
-    new VisualizerPlugin( options || Object.assign({
+    new VisualizerPlugin( cover ? options : Object.assign({
       filename: paths.visualizerFile
-    }, extendProps ))
+    }, options ))
   ];
 }
 
@@ -177,7 +202,8 @@ export default {
   WatchMissingNodeModules,
   SystemBellWebpack,
   ExtractText,
-  DllPlugins,
+  DllPlugin,
+  DllReferencePlugin,
   CopyPublic,
   CopyWebpack,
   CommonsChunk,

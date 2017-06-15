@@ -1,27 +1,28 @@
 
 import { join } from 'path';
 import webpack from 'webpack';
+// eslint-disable-next-line
 import { paths } from 'kiwiai';
+
 
 const appBuild = paths.dllNodeModule;
 const pkg = require( join( paths.appDirectory, 'package.json' )); // eslint-disable-line
 const dependencyNames = Object.keys( pkg.dependencies );
-const includeDependencies = dependencyNames;
 
 export default {
   entry: {
-    dlls: includeDependencies
+    dlls: dependencyNames
   },
   output: {
     path: appBuild,
-    filename: '[name].js',
+    filename: '[name].dll.js',
     library: '[name]'
   },
   plugins: [
     new webpack.DllPlugin({
       path: join( appBuild, '[name].json' ),
-      name: '[name]',
-      context: paths.appSrc
+      context: paths.appSrc,
+      name: '[name]'
     })
   ],
   resolve: {

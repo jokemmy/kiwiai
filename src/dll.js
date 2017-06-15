@@ -36,8 +36,8 @@ function readConfig( pathToFile, fileName ) { // eslint-disable-line
 
 export function build( argv ) { // eslint-disable-line
 
-  rcConfig = readConfig( paths.appSeverConfig, paths.SEVER_CONFIG );
   appBuild = paths.dllNodeModule;
+  rcConfig = readConfig( paths.appSeverConfig, paths.SEVER_CONFIG );
   dllConfig = ( rcConfig.webpackConfig && rcConfig.webpackConfig.dll ) || paths.WEBPACK_DLL_CONFIG;
   config = readConfig( paths.resolveApp( dllConfig ), dllConfig );
 

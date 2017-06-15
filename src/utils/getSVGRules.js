@@ -17,7 +17,7 @@ export default function getSVGLoaders({
   const spriteSvgLoader = {
     test: /\.(svg)$/i,
     use: [{
-      loader: 'svg-sprite'
+      loader: 'svg-sprite-loader'
     }]
   };
 

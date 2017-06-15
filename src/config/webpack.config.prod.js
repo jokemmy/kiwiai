@@ -1,46 +1,59 @@
 
-import { paths, getEntry, getOutput, getSVGRules, getFontRules,
-  loaders, plugins, combine } from 'kiwiai';
+// eslint-disable-next-line
+import { paths, getEntry, getOutput, getSVGRules, loaders, plugins, combine } from 'kiwiai';
 
-const { /*getDefaultLoaderOptions,*/ extractTextExtract } = plugins;
+
+const { extractTextExtract } = plugins;
 const { styleLoader, cssLoader, postcssLoader, lessLoader, urlLoader,
-  babelLoader, /* fileLoader,*/ jsonLoader, typescriptLoader } = loaders;
+  babelLoader, jsonLoader, typescriptLoader, getDefaultLoaderOptions } = loaders;
 
-const staticFileName = 'static/[name].$[chunkhash:4].[ext]';
+const staticFileName = 'static/[name].$[hash:4].[ext]';
 const cssModules = {
   modules: true,
   localIdentName: '[local]_[sha512:hash:base64:5]'
 };
+const cssOptions = {
+  importLoaders: 1
+};
 const output = {
+  publicPath: '',
   filename: '[name].$[chunkhash:4].js',
   chunkFilename: '[name].$[chunkhash:4].chunk.js'
 };
 const lessTheme = {
-  // modifyVar: JSON.stringify( theme )
+  // modifyVars: theme
 };
 const svgRules = Object.values( getSVGRules({
-  fileName: staticFileName
+  fileName: staticFileName,  // eslint-disable-line
   // svgSpriteDirs: [
   //   require.resolve( 'antd-mobile' ).replace( /warn\.js$/, '' ),
-  //   paths.resolveApp( 'src/assets/svg' )
+  //   paths.resolveApp( 'src/assets' )
   // ]
 }));
-const fontRules = Object.values( getFontRules({
-  fileName: staticFileName
-}));
-// const { babel } = getDefaultLoaderOptions(['babel']);
-// babel.plugins.push( 'dva-hmr' );
-// babel.plugins.push( 'transform-runtime' );
-// babel.plugins.push([ 'import', { libraryName: 'antd', style: true }]);
+
+// babel 的配置
+const babelOptions = getDefaultLoaderOptions( 'babel' );
+// presets
+babelOptions.presets.push( 'react-native' );
+// plugins
+babelOptions.plugins.push( 'transform-runtime' );
+babelOptions.plugins.push( 'transform-class-properties' );
+babelOptions.plugins.push( 'transform-decorators-legacy' );
+
 
 export default {
   bail: true,
-  entry: getEntry(['./src/index.js']),
+  entry: getEntry([ './src/common.js', './src/index.js' ]),
   output: getOutput( output ),
   resolve: {
+    modules: [
+      paths.appSrc,
+      paths.appNodeModules,
+      paths.ownNodeModules
+    ],
     extensions: [
       '.web.js', '.web.jsx', '.web.ts', '.web.tsx',
-      '.js', '.json', '.jsx', '.ts', '.tsx'
+      '.js', '.jsx', '.ts', '.tsx', '.json'
     ]
   },
   module: {
@@ -48,7 +61,7 @@ export default {
     rules: [{
       exclude: [
         /\.html$/,
-        /\.(js|jsx)$/,
+        /\.jsx?$/,
         /\.(css|less)$/,
         /\.json$/,
         /\.svg$/,
@@ -56,59 +69,76 @@ export default {
       ],
       use: [urlLoader({ name: staticFileName })]
     }, {
-      test: /\.(js|jsx)$/,
+      test: /\.jsx?$/,
       include: paths.appSrc,
-      use: [babelLoader()]
+      use: [babelLoader( babelOptions )]
     }, {
       test: /\.tsx?$/,
       include: paths.appSrc,
-      use: [ babelLoader(), typescriptLoader() ]
+      use: [
+        babelLoader( babelOptions ),
+        typescriptLoader()
+      ]
     }, {
       test: /\.css$/,
       include: paths.appSrc,
       use: extractTextExtract({
-        fallback: [styleLoader()],
-        use: [ cssLoader( cssModules ), postcssLoader() ]
+        fallback: styleLoader(),
+        use: [
+          cssLoader( cssOptions, cssModules ),
+          postcssLoader()
+        ]
       })
     }, {
       test: /\.less$/,
       include: paths.appSrc,
       use: extractTextExtract({
-        fallback: [styleLoader()],
-        use: [ cssLoader( cssModules ), postcssLoader(), lessLoader( lessTheme ) ]
+        fallback: styleLoader(),
+        use: [
+          cssLoader( cssOptions, cssModules ),
+          postcssLoader(),
+          lessLoader( lessTheme )
+        ]
       })
     }, {
       test: /\.css$/,
       include: paths.appNodeModules,
       use: extractTextExtract({
-        fallback: [styleLoader()],
-        use: [ cssLoader(), postcssLoader() ]
+        fallback: styleLoader(),
+        use: [
+          cssLoader( cssOptions ),
+          postcssLoader()
+        ]
       })
     }, {
       test: /\.less$/,
       include: paths.appNodeModules,
       use: extractTextExtract({
-        fallback: [styleLoader()],
-        use: [ cssLoader(), postcssLoader(), lessLoader( lessTheme ) ]
+        fallback: styleLoader(),
+        use: [
+          cssLoader( cssOptions ),
+          postcssLoader(),
+          lessLoader( lessTheme )
+        ]
       })
-    }, /* , {
-      test: /\.html$/,
-      use: [fileLoader()]
-    }*/ {
+    }, {
       test: /\.json$/,
       use: [jsonLoader()]
     }]
     .concat( svgRules )
-    .concat( fontRules )
   },
   plugins: combine(
     plugins.Define(),
     plugins.CopyPublic(),
     plugins.UglifyJs(),
     plugins.Visualizer(),
-    plugins.ExtractText(),
+    plugins.ExtractText( undefined, {
+      filename: 'style.$[contenthash:4].css'
+    }),
     plugins.HtmlWebpack(),
-    plugins.CommonsChunk()
+    plugins.CommonsChunk( undefined, {
+      filename: 'common.$[chunkhash:4].js'
+    })
   ),
   // externals: config.externals,
   node: {

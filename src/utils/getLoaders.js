@@ -1,5 +1,4 @@
 
-import pick from 'object.pick';
 import autoprefixer from 'autoprefixer';
 import compose from './compose';
 
@@ -35,14 +34,14 @@ export function getDefaultLoaderOptions( picker ) {
   };
 
   if ( picker ) {
-    return pick( defaultOptions, [picker])[picker];
+    return defaultOptions[picker];
   }
   return defaultOptions;
 }
 
 
 function loaderCreator( loaderName, defaultOptions = {}) {
-  return compose(( options = {}) => {
+  return compose(( options ) => {
     if ( Object.keys( options ).length || Object.keys( defaultOptions ).length ) {
       return {
         loader: loaderName,
@@ -54,7 +53,7 @@ function loaderCreator( loaderName, defaultOptions = {}) {
     if ( opts.length ) {
       return Object.assign({}, ...opts );
     }
-    return opts[0];
+    return {};
   });
 }
 

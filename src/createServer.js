@@ -5,7 +5,9 @@ import { map } from 'control.monads';
 import chalk from 'chalk';
 import assert from 'assert';
 import detect from 'detect-port';
+import flatten from 'arr-flatten';
 
+import is from './utils/is';
 import paths from './utils/paths';
 import print from './utils/print';
 import compose from './utils/compose';
@@ -70,7 +72,11 @@ function readWebpackConfig( server ) {
       existsSync( configFile ),
       `File ${devConfig || WEBPACK_DEV_CONFIG} is not exsit.`
     );
-    server.webpackDevConfig = getConfig( configFile );
+    const wpConfig = getConfig( configFile );
+    wpConfig.plugins = flatten( wpConfig.plugins.map(( plugin ) => {
+      return is.Function( plugin ) ? plugin( wpConfig ) : plugin;
+    }));
+    server.webpackDevConfig = wpConfig;
     watchFiles.push( configFile );
     return Right( server );
   } catch ( e ) {
