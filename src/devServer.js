@@ -42,6 +42,7 @@ export default function( server ) {
     clientLogLevel: 'none',
     contentBase: paths.appPublic,
     publicPath: webpackDevConfig.output.publicPath,
+    disableHostCheck: true,
     quiet: true,
     watchOptions: {
       ignored: /node_modules/

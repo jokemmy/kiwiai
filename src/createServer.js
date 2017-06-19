@@ -73,6 +73,13 @@ function readWebpackConfig( server ) {
       `File ${devConfig || WEBPACK_DEV_CONFIG} is not exsit.`
     );
     const wpConfig = getConfig( configFile );
+    if ( is.Function( wpConfig.plugins )) {
+      wpConfig.plugins = wpConfig.plugins( wpConfig );
+    }
+    assert(
+      is.Array( wpConfig.plugins ),
+      `Configuration [plugins] should be array, but got ${typeof wpConfig.plugins}.`
+    );
     wpConfig.plugins = flatten( wpConfig.plugins.map(( plugin ) => {
       return is.Function( plugin ) ? plugin( wpConfig ) : plugin;
     }));

@@ -2,11 +2,14 @@
 import chalk from 'chalk';
 import fs from 'fs-extra';
 import path from 'path';
+import assert from 'assert';
 import filesize from 'filesize';
-import { sync as gzipSize } from 'gzip-size';
 import webpack from 'webpack';
+import flatten from 'arr-flatten';
 import recursive from 'recursive-readdir';
+import { sync as gzipSize } from 'gzip-size';
 import stripAnsi from 'strip-ansi';
+import is from './utils/is';
 import print from './utils/print';
 import paths from './utils/paths';
 import getConfig from './utils/getConfig';
@@ -40,6 +43,17 @@ export function build( argv ) { // eslint-disable-line
   rcConfig = readConfig( paths.appSeverConfig, paths.SEVER_CONFIG );
   dllConfig = ( rcConfig.webpackConfig && rcConfig.webpackConfig.dll ) || paths.WEBPACK_DLL_CONFIG;
   config = readConfig( paths.resolveApp( dllConfig ), dllConfig );
+
+  if ( is.Function( config.plugins )) {
+    config.plugins = config.plugins( config );
+  }
+  assert(
+    is.Array( config.plugins ),
+    `Configuration [plugins] should be array, but got ${typeof config.plugins}.`
+  );
+  config.plugins = flatten( config.plugins.map(( plugin ) => {
+    return is.Function( plugin ) ? plugin( config ) : plugin;
+  }));
 
   return new Promise(( resolve ) => {
     // First, read the current file sizes in build directory.

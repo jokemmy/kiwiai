@@ -23,12 +23,11 @@ function normalizeDefine( define = {}) {
 }
 
 function Define( options = {}, cover = false ) {
-  return new webpack.DefinePlugin( cover ? options : Object.assign({
+  return [new webpack.DefinePlugin( cover ? options : Object.assign({
     'process.env': {
       NODE_ENV: JSON.stringify( process.env.NODE_ENV )
     }
-  }, normalizeDefine( options ))
-  );
+  }, normalizeDefine( options )))];
 }
 
 // function LoaderOptions( options = {}, extendOptions = {}) {
@@ -38,27 +37,27 @@ function Define( options = {}, cover = false ) {
 // }
 
 function HotModuleReplacement( options = {}) {
-  return new webpack.HotModuleReplacementPlugin( options );
+  return [new webpack.HotModuleReplacementPlugin( options )];
 }
 
 function CaseSensitivePaths( options = {}) {
-  return new CaseSensitivePathsPlugin( options );
+  return [new CaseSensitivePathsPlugin( options )];
 }
 
 function WatchMissingNodeModules( nodeModulesPath ) {
-  return new WatchMissingNodeModulesPlugin( nodeModulesPath || paths.appNodeModules );
+  return [new WatchMissingNodeModulesPlugin( nodeModulesPath || paths.appNodeModules )];
 }
 
 function SystemBellWebpack() {
-  return new SystemBellWebpackPlugin();
+  return [new SystemBellWebpackPlugin()];
 }
 
 function ExtractText( options = {}, cover = false ) {
-  return new ExtractTextPlugin( cover ? options : Object.assign({
+  return [new ExtractTextPlugin( cover ? options : Object.assign({
     filename: 'style.$[contenthash:4].css',
     disable: false,
     allChunks: true
-  }, options ));
+  }, options ))];
 }
 
 function extractTextExtract( options = {}) {
