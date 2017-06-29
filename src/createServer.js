@@ -65,26 +65,37 @@ function readServerConfig( server ) {
 
 // read config for webpack dev server
 function readWebpackConfig( server ) {
+
   const devConfig = server.webpackConfig && server.webpackConfig.dev;
   const configFile = paths.resolveApp( devConfig ) || appWebpackDevConfig;
+
   try {
+
     assert(
       existsSync( configFile ),
       `File ${devConfig || WEBPACK_DEV_CONFIG} is not exsit.`
     );
+
     const wpConfig = getConfig( configFile );
+
+    // plugins: function
     if ( is.Function( wpConfig.plugins )) {
       wpConfig.plugins = wpConfig.plugins( wpConfig );
     }
-    assert(
-      is.Array( wpConfig.plugins ),
-      `Configuration [plugins] should be array, but got ${typeof wpConfig.plugins}.`
-    );
+
+    // plugins: not array
+    if ( !is.Array( wpConfig.plugins )) {
+      wpConfig.plugins = [wpConfig.plugins];
+    }
+
+    // plugins: array in array
     wpConfig.plugins = flatten( wpConfig.plugins.map(( plugin ) => {
       return is.Function( plugin ) ? plugin( wpConfig ) : plugin;
     }));
+
     server.webpackDevConfig = wpConfig;
     watchFiles.push( configFile );
+
     return Right( server );
   } catch ( e ) {
     print(
@@ -102,12 +113,12 @@ function portChecker( server ) {
       if ( port === server.port ) {
         result( server );
       } else {
-        print( chalk.yellow( `Something is already running on port ${port}.` ));
+        print( chalk.yellow( `Something is already running on port ${server.port}.` ));
       }
     });
   };
 }
 
-compose( map( portChecker ), readServerConfig )( server ).map(( callback ) => {
-  callback( compose( map( devServer ), map( compiler ), readWebpackConfig ));
-});
+compose( map( portChecker ), readServerConfig )( server ).map(
+  ( callback ) => callback( compose( map( devServer ), map( compiler ), readWebpackConfig ))
+);

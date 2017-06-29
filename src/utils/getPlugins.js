@@ -3,7 +3,6 @@ import chalk from 'chalk';
 import assert from 'assert';
 import webpack from 'webpack';
 import { existsSync } from 'fs';
-// import { join, basename } from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import VisualizerPlugin from 'webpack-visualizer-plugin';
@@ -23,41 +22,39 @@ function normalizeDefine( define = {}) {
 }
 
 function Define( options = {}, cover = false ) {
-  return [new webpack.DefinePlugin( cover ? options : Object.assign({
-    'process.env': {
-      NODE_ENV: JSON.stringify( process.env.NODE_ENV )
-    }
-  }, normalizeDefine( options )))];
+  return (
+    new webpack.DefinePlugin( cover ? options : Object.assign({
+      'process.env': {
+        NODE_ENV: JSON.stringify( process.env.NODE_ENV )
+      }
+    }, normalizeDefine( options )))
+  );
 }
 
-// function LoaderOptions( options = {}, extendOptions = {}) {
-//   return new webpack.LoaderOptionsPlugin( Object.assign({
-//     options: Object.assign( getDefaultLoaderOptions(), extendOptions )
-//   }, options ));
-// }
-
 function HotModuleReplacement( options = {}) {
-  return [new webpack.HotModuleReplacementPlugin( options )];
+  return new webpack.HotModuleReplacementPlugin( options );
 }
 
 function CaseSensitivePaths( options = {}) {
-  return [new CaseSensitivePathsPlugin( options )];
+  return new CaseSensitivePathsPlugin( options );
 }
 
 function WatchMissingNodeModules( nodeModulesPath ) {
-  return [new WatchMissingNodeModulesPlugin( nodeModulesPath || paths.appNodeModules )];
+  return new WatchMissingNodeModulesPlugin( nodeModulesPath || paths.appNodeModules );
 }
 
 function SystemBellWebpack() {
-  return [new SystemBellWebpackPlugin()];
+  return new SystemBellWebpackPlugin();
 }
 
 function ExtractText( options = {}, cover = false ) {
-  return [new ExtractTextPlugin( cover ? options : Object.assign({
-    filename: 'style.$[contenthash:4].css',
-    disable: false,
-    allChunks: true
-  }, options ))];
+  return (
+    new ExtractTextPlugin( cover ? options : Object.assign({
+      filename: 'style.$[contenthash:4].css',
+      disable: false,
+      allChunks: true
+    }, options ))
+  );
 }
 
 function extractTextExtract( options = {}) {
@@ -86,38 +83,38 @@ function DllReferencePlugin( options = {}, cover = false ) {
 
 function DllPlugin( options = {}, cover = false ) {
   return ({ output }) => {
-    return [
+    return (
       new webpack.DllPlugin( cover ? options : Object.assign({
         path: paths.dllManifest,
         context: paths.appSrc,
         name: output.library
       }, options ))
-    ];
+    );
   };
 }
 
 function CopyPublic() {
-  return existsSync( paths.appPublic ) ? [
+  return existsSync( paths.appPublic ) ? (
     new CopyWebpackPlugin([{
       from: paths.appPublic,
       to: paths.appBuild
     }])
-  ] : [];
+  ) : [];
 }
 
 function CopyWebpack( arrays = []) {
-  return [
+  return (
     new CopyWebpackPlugin( arrays )
-  ];
+  );
 }
 
 function CommonsChunk( options = {}, cover = false ) {
-  return [
+  return (
     new webpack.optimize.CommonsChunkPlugin( cover ? options : Object.assign({
       name: 'vendor',
       filename: 'vendor.js'
     }, options ))
-  ];
+  );
 }
 
 function HtmlWebpack( options = {}, cover = false ) {
@@ -136,7 +133,7 @@ function HtmlWebpack( options = {}, cover = false ) {
       options.chunks.push( 'hmr' );
     }
 
-    return [
+    return (
       new HtmlWebpackPlugin( cover ? options : Object.assign({
         favicon: paths.appFav,
         filename: 'index.html',
@@ -152,12 +149,12 @@ function HtmlWebpack( options = {}, cover = false ) {
           collapseWhitespace: true
         }
       }, options ))
-    ];
+    );
   };
 }
 
 function UglifyJs( options = {}, cover = false ) {
-  return [
+  return (
     new webpack.optimize.UglifyJsPlugin( cover ? options : Object.assign({
       compress: {
         screw_ie8: true, // React doesn't support IE8
@@ -172,15 +169,15 @@ function UglifyJs( options = {}, cover = false ) {
         ascii_only: true
       }
     }, options ))
-  ];
+  );
 }
 
 function Visualizer( options = {}, cover = false ) {
-  return [
+  return (
     new VisualizerPlugin( cover ? options : Object.assign({
       filename: paths.visualizerFile
     }, options ))
-  ];
+  );
 }
 
 export function combine( ...plugins ) {

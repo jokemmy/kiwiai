@@ -12,6 +12,7 @@ export default function( server ) {
   const { isInteractive, port, webpackDevConfig } = server;
   const compiler = webpack( webpackDevConfig );
 
+  clearConsole();
   compiler.plugin( 'invalid', () => print( 'Compiling...' ));
 
   let isFirstCompile = true;
@@ -27,10 +28,8 @@ export default function( server ) {
     }
 
     if ( showInstructions ) {
-      print(
-        `The server is running at: ${chalk.cyan( `${protocol}://${host}:${port}/` )}`,
-        chalk.blue( 'Enjoy!' )
-      );
+      print( `The server is running at: ${chalk.cyan( `${protocol}://${host}:${port}/` )}` );
+      print( chalk.blue( 'Enjoy!' ));
       isFirstCompile = false;
     }
 
@@ -44,16 +43,7 @@ export default function( server ) {
       print( chalk.yellow( 'Compiled with warnings.' ));
       messages.warnings.forEach(( message ) => print( message ));
 
-      // Teach some ESLint tricks.
-      // console.log( 'You may use special comments to disable some warnings.' );
-      // console.log( `Use ${chalk.yellow('// eslint-disable-next-line')} to ignore the next line.` );
-      // console.log( `Use ${chalk.yellow('/* eslint-disable */')} to ignore all warnings in a file.` );
-      // console.log();
     }
-
-    // if (isInteractive) {
-    //   outputMockError();
-    // }
   });
 
   server.compiler = compiler;

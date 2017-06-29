@@ -6,9 +6,12 @@ import historyApiFallback from 'connect-history-api-fallback';
 import paths from './utils/paths';
 import print from './utils/print';
 import clearConsole from './utils/clearConsole';
+import { applyMock, outputError as outputMockError } from './utils/mock';
+
 
 function addMiddleware( server ) {
   const { proxy, devServer } = server;
+  // 单页面重定向
   devServer.use( historyApiFallback({
     disableDotRule: true,
     htmlAcceptHeaders: proxy ? ['text/html'] : [ 'text/html', '*/*' ]
@@ -54,7 +57,7 @@ export default function( server ) {
 
   server.devServer = devServer;
   addMiddleware( server );
-  // applyMock( devServer );
+  applyMock( devServer );
 
   devServer.listen( port, ( err ) => {
 
@@ -66,9 +69,9 @@ export default function( server ) {
     process.send( 'READY' );
     clearConsole();
     print( chalk.cyan( 'Starting the development server...' ));
-    // if (isInteractive) {
-    //   outputMockError();
-    // }
+    if ( server.isInteractive ) {
+      outputMockError();
+    }
   });
 
   setupWatch( server );

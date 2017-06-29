@@ -6,6 +6,12 @@ import compose from './compose';
 export function getDefaultLoaderOptions( picker ) {
 
   const defaultOptions = {
+    url: {
+      limit: 10000
+    },
+    file: {
+      name: '[name].[ext]'
+    },
     babel: {
       babelrc: false,
       presets: [
@@ -65,15 +71,11 @@ export const postcssLoader = loaderCreator( 'postcss-loader', getDefaultLoaderOp
 
 export const lessLoader = loaderCreator( 'less-loader' );
 
-export const urlLoader = loaderCreator( 'url-loader', {
-  limit: 10000
-});
+export const urlLoader = loaderCreator( 'url-loader', getDefaultLoaderOptions( 'url' ));
 
 export const babelLoader = loaderCreator( 'babel-loader', getDefaultLoaderOptions( 'babel' ));
 
-export const fileLoader = loaderCreator( 'file-loader', {
-  name: '[name].[ext]'
-});
+export const fileLoader = loaderCreator( 'file-loader', getDefaultLoaderOptions( 'file' ));
 
 export const jsonLoader = loaderCreator( 'json-loader' );
 

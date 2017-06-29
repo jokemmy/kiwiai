@@ -59,13 +59,16 @@ export function build( argv ) { // eslint-disable-line
   prodConfig = ( rcConfig.webpackConfig && rcConfig.webpackConfig.prod ) || paths.WEBPACK_PROD_CONFIG;
   config = readConfig( paths.resolveApp( prodConfig ), prodConfig );
 
+  // plugins: function
   if ( is.Function( config.plugins )) {
     config.plugins = config.plugins( config );
   }
-  assert(
-    is.Array( config.plugins ),
-    `Configuration [plugins] should be array, but got ${typeof config.plugins}.`
-  );
+
+  // plugins: not array
+  if ( !is.Array( config.plugins )) {
+    config.plugins = [config.plugins];
+  }
+
   config.plugins = flatten( config.plugins.map(( plugin ) => {
     return is.Function( plugin ) ? plugin( config ) : plugin;
   }));

@@ -43,6 +43,9 @@ export function getEntries( files ) {
   return files;
 }
 
+/**
+ * entry: Array / Object
+ */
 export default function( entry ) {
   const entries = getEntries( entry ? getFiles( entry, appDirectory ) : [appIndex]);
   if ( process.env.NODE_ENV === 'development' ) {
