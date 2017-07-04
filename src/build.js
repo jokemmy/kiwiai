@@ -2,7 +2,6 @@
 import path from 'path';
 import chalk from 'chalk';
 import fs from 'fs-extra';
-import assert from 'assert';
 import webpack from 'webpack';
 import filesize from 'filesize';
 import stripAnsi from 'strip-ansi';
@@ -149,7 +148,7 @@ function printFileSizes( stats, previousSizeMap ) {
       const rightPadding = ' '.repeat( longestSizeLabelLength - sizeLength );
       sizeLabel += rightPadding;
     }
-    console.log(
+    print(
       `  ${sizeLabel}  ${chalk.dim( asset.folder + path.sep )}${chalk.cyan( asset.name )}`,
     );
   });
@@ -187,9 +186,9 @@ function doneHandler( previousSizeMap, argv, resolve, err, stats ) {
 // Create the production build and print the deployment instructions.
 function realBuild( previousSizeMap, resolve, argv ) {
   if ( argv.debug ) {
-    console.log( 'Creating an development build without compress...' );
+    print( 'Creating an development build without compress...' );
   } else {
-    console.log( 'Creating an optimized production build...' );
+    print( 'Creating an optimized production build...' );
   }
 
   const compiler = webpack( config );

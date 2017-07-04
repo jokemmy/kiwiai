@@ -12,8 +12,10 @@ import print from './print';
 import is from './is';
 
 let error = null;
+let changedPath = '';
 
 // get all files of mock
+// 由于是不重启进程所以如果要多次 require 并保持最新的内容就必须要删除 require.cache 中的缓存
 export function getConfig( resolvedFilePath ) {
   if ( fs.existsSync( resolvedFilePath )) {
     const files = [];
@@ -22,13 +24,14 @@ export function getConfig( resolvedFilePath ) {
       if ( filename.indexOf( paths.appNodeModules ) === -1 ) {
         files.push( filename );
       }
-      delete require.cache[filename];
       return realRequire( m, filename );
     };
-
+    if ( changedPath in require.cache ) {
+      delete require.cache[changedPath];
+    }
     const config = require( resolvedFilePath );  // eslint-disable-line
     require.extensions['.js'] = realRequire;
-
+    changedPath = '';
     return { config, files };
   }
   return {
@@ -131,6 +134,7 @@ function realApplyMock( devServer ) {
     persistent: true
   });
   watcher.on( 'change', ( path ) => {
+    changedPath = path;
     print( chalk.green( 'CHANGED' ), path.replace( paths.appDirectory, '.' ));
     watcher.close();
 
@@ -173,6 +177,7 @@ export function applyMock( devServer ) {
       persistent: true
     });
     watcher.on( 'change', ( path ) => {
+      changedPath = path;
       print( chalk.green( 'CHANGED' ), path.replace( paths.appDirectory, '.' ));
       watcher.close();
       applyMock( devServer );
