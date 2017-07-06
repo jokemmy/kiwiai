@@ -12,6 +12,9 @@ export function getDefaultLoaderOptions( picker ) {
     file: {
       name: '[name].[ext]'
     },
+    css: {
+      importLoaders: 1
+    },
     babel: {
       babelrc: false,
       presets: [
@@ -65,7 +68,7 @@ function loaderCreator( loaderName, defaultOptions = {}) {
 
 export const styleLoader = loaderCreator( 'style-loader' );
 
-export const cssLoader = loaderCreator( 'css-loader' );
+export const cssLoader = loaderCreator( 'css-loader', getDefaultLoaderOptions( 'css' ));
 
 export const postcssLoader = loaderCreator( 'postcss-loader', getDefaultLoaderOptions( 'postcss' ));
 
