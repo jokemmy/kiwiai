@@ -44,11 +44,11 @@ switch ( script ) {
       console.log('Unknown script "' + script + '".');
       console.log('Perhaps you need to update kiwiai?');
     } else {
-      console.log('Do you mean ' + chalk.gray('kiwiai server') + ' ?');
+      console.log('Do you mean ' + chalk.gray('kiwiai server') + '?');
       console.log(chalk.gray('Also you can try:'));
-      console.log(chalk.gray('kiwiai dll'));
       console.log(chalk.gray('kiwiai build'));
       console.log(chalk.gray('kiwiai test'));
+      console.log(chalk.gray('kiwiai dll'));
     }
     break;
 }
