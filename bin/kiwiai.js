@@ -5,6 +5,7 @@
 var script = process.argv[2];
 var args = process.argv.slice(3);
 var spawn = require( 'cross-spawn' );
+var chalk = require( 'chalk' );
 
 switch ( script ) {
   case '-v':
@@ -39,7 +40,15 @@ switch ( script ) {
     process.exit( result.status );
     break;
   default:
-    console.log('Unknown script "' + script + '".');
-    console.log('Perhaps you need to update kiwiai?');
+    if ( script ) {
+      console.log('Unknown script "' + script + '".');
+      console.log('Perhaps you need to update kiwiai?');
+    } else {
+      console.log('Do you mean ' + chalk.gray('kiwiai server') + ' ?');
+      console.log(chalk.gray('Also you can try:'));
+      console.log(chalk.gray('kiwiai dll'));
+      console.log(chalk.gray('kiwiai build'));
+      console.log(chalk.gray('kiwiai test'));
+    }
     break;
 }
