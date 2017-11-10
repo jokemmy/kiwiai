@@ -1,20 +1,19 @@
 
+import path from 'path';
 import chalk from 'chalk';
 import fs from 'fs-extra';
-import path from 'path';
-import assert from 'assert';
-import filesize from 'filesize';
 import webpack from 'webpack';
+import filesize from 'filesize';
 import flatten from 'arr-flatten';
+import stripAnsi from 'strip-ansi';
 import recursive from 'recursive-readdir';
 import { sync as gzipSize } from 'gzip-size';
-import stripAnsi from 'strip-ansi';
 import is from './utils/is';
 import print from './utils/print';
 import paths from './utils/paths';
 import getConfig from './utils/getConfig';
 
-process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+process.env.NODE_ENV = 'development';
 
 const argv = require( 'yargs' ) // eslint-disable-line
   .usage( 'Usage: roadhog buildDll [options]' )
@@ -34,6 +33,7 @@ function readConfig( pathToFile, fileName ) { // eslint-disable-line
       chalk.red( `Failed to read ${fileName}.` ),
       e.message
     );
+    print();
   }
 }
 
@@ -134,7 +134,7 @@ function printFileSizes( stats, previousSizeMap ) {
       const rightPadding = ' '.repeat( longestSizeLabelLength - sizeLength );
       sizeLabel += rightPadding;
     }
-    console.log(
+    print(
       `  ${sizeLabel}  ${chalk.dim( asset.folder + path.sep )}${chalk.cyan( asset.name )}`,
     );
   });
@@ -149,11 +149,13 @@ function printErrors( summary, errors ) {
 function doneHandler( previousSizeMap, argv, resolve, err, stats ) {
   if ( err ) {
     printErrors( 'Failed to compile.', [err]);
+    print();
     process.exit( 1 );
   }
 
   if ( stats.compilation.errors.length ) {
     printErrors( 'Failed to compile.', stats.compilation.errors );
+    print();
     process.exit( 1 );
   }
 
@@ -171,7 +173,8 @@ function doneHandler( previousSizeMap, argv, resolve, err, stats ) {
 
 // Create the production build and print the deployment instructions.
 function realBuild( previousSizeMap, resolve, argv ) {
-  console.log( 'Creating dll bundle...' );
+  print( 'Creating dll bundle...' );
+  print();
 
   const compiler = webpack( config );
   const done = doneHandler.bind( null, previousSizeMap, argv, resolve );

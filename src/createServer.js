@@ -59,6 +59,7 @@ function readServerConfig( server ) {
       chalk.red( `Failed to read ${SEVER_CONFIG}.` ),
       e.message
     );
+    print();
     return Left( null );
   }
 }
@@ -102,6 +103,7 @@ function readWebpackConfig( server ) {
       chalk.red( `Failed to read ${devConfig || WEBPACK_DEV_CONFIG}.` ),
       e.message
     );
+    print();
     return Left( null );
   }
 }
@@ -114,6 +116,7 @@ function portChecker( server ) {
         result( server );
       } else {
         print( chalk.yellow( `Something is already running on port ${server.port}.` ));
+        print();
       }
     });
   };

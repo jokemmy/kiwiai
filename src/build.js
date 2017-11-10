@@ -46,6 +46,7 @@ function readConfig( pathToFile, fileName ) {
       chalk.red( `Failed to read ${fileName}.` ),
       e.message
     );
+    print();
     return '';
   }
 }
@@ -151,6 +152,7 @@ function printFileSizes( stats, previousSizeMap ) {
     print(
       `  ${sizeLabel}  ${chalk.dim( asset.folder + path.sep )}${chalk.cyan( asset.name )}`,
     );
+    print();
   });
 }
 
@@ -190,7 +192,7 @@ function realBuild( previousSizeMap, resolve, argv ) {
   } else {
     print( 'Creating an optimized production build...' );
   }
-
+  print();
   const compiler = webpack( config );
   const done = doneHandler.bind( null, previousSizeMap, argv, resolve );
   if ( argv.watch ) {

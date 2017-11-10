@@ -27,6 +27,7 @@ function setupWatch( server ) {
   });
   watcher.on( 'change', ( path ) => {
     print( chalk.green( `File ${path.replace( paths.appDirectory, '.' )} changed, try to restart server` ));
+    print();
     watcher.close();
     devServer.close();
     process.send( 'RESTART' );
@@ -63,12 +64,14 @@ export default function( server ) {
 
     if ( err ) {
       print( err );
+      print();
       return;
     }
 
     process.send( 'READY' );
     clearConsole();
     print( chalk.cyan( 'Starting the development server...' ));
+    print();
     if ( server.isInteractive ) {
       outputMockError();
     }
