@@ -2,23 +2,41 @@
 
 'use strict';
 
-var script = process.argv[2];
-var args = process.argv.slice(3);
-var spawn = require( 'cross-spawn' );
-var chalk = require( 'chalk' );
+
+process.on( 'unhandledRejection', err => {
+  throw err;
+});
+
+
+const chalk = require( 'chalk' );
+const spawn = require( 'cross-spawn' );
+const args = process.argv.slice( 2 );
+const scriptIndex = args.findIndex( x => {
+  return x === 'build' || x === 'dev' || x === 'start' || x === 'test' ||
+    x === 'server' || x === 'dll';
+});
+let script = scriptIndex === -1 ? args[0] : args[scriptIndex];
+const nodeArgs = scriptIndex > 0 ? args.slice( 0, scriptIndex ) : [];
+
+// dev alias server
+if ( script === 'server' ) {
+  script = 'dev';
+}
 
 switch ( script ) {
   case '-v':
   case '--version':
     console.log( require( '../package.json' ).version );
     break;
+  case 'dev':
   case 'build':
-  case 'server':
   case 'test':
-  case 'dll':
-    var result = spawn.sync(
+  case 'dll': {
+    const result = spawn.sync(
       'node',
-      [require.resolve( '../lib/' + script )].concat( args ),
+      nodeArgs
+        .concat( require.resolve( '../script/' + script ))
+        .concat( args.slice( scriptIndex + 1 )),
       { stdio: 'inherit' }
     );
     if ( result.signal ) {
@@ -39,16 +57,17 @@ switch ( script ) {
     }
     process.exit( result.status );
     break;
+  }
   default:
     if ( script ) {
-      console.log('Unknown script "' + script + '".');
-      console.log('Perhaps you need to update kiwiai?');
+      console.log( 'Unknown script "' + script + '".' );
+      console.log( 'Perhaps you need to update kiwiai?' );
     } else {
-      console.log('Do you mean ' + chalk.gray('kiwiai server') + '?');
-      console.log(chalk.gray('Also you can try:'));
-      console.log(chalk.gray('kiwiai build'));
-      console.log(chalk.gray('kiwiai test'));
-      console.log(chalk.gray('kiwiai dll'));
+      console.log( 'Do you mean ' + chalk.gray( 'kiwiai dev' ) + '?' );
+      console.log( chalk.gray( 'Also you can try:' ));
+      console.log( chalk.gray( 'kiwiai build' ));
+      console.log( chalk.gray( 'kiwiai test' ));
+      console.log( chalk.gray( 'kiwiai dll' ));
     }
     break;
 }

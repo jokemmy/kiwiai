@@ -3,14 +3,16 @@ import chalk from 'chalk';
 import assert from 'assert';
 import webpack from 'webpack';
 import { existsSync } from 'fs';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import VisualizerPlugin from 'webpack-visualizer-plugin';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
-import AddAssetHtmlPlugin from 'add-asset-html-webpack-plugin';
 import SystemBellWebpackPlugin from 'system-bell-webpack-plugin';
 import CaseSensitivePathsPlugin from 'case-sensitive-paths-webpack-plugin';
 import WatchMissingNodeModulesPlugin from 'react-dev-utils/WatchMissingNodeModulesPlugin';
+
+// html 相关
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import AddAssetHtmlPlugin from 'add-asset-html-webpack-plugin';
 import paths from './paths';
 
 

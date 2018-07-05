@@ -13,29 +13,7 @@ import print from './utils/print';
 import compose from './utils/compose';
 import getConfig from './utils/getConfig';
 import compiler from './compiler';
-import devServer from './devServer';
 
-/*
-{
-  port: 8000,
-  outputPath: 'dist',
-  proxy: {
-    '/api': {
-      target: 'http://192.168.1.6:8020',
-      changeOrigin: true,
-      pathRewrite: { '^/api': '' }
-    }
-  },
-  webpackConfig: [
-    'webpack.config.dev.js',
-    'webpack.config.dll.js',
-    'webpack.config.pro.js'
-  ]
-}
- */
-
-// develop server
-process.env.NODE_ENV = 'development';
 
 const DEFAULT_PORT = 8000;
 const { SEVER_CONFIG, WEBPACK_DEV_CONFIG, appSeverConfig, appWebpackDevConfig } = paths;
@@ -122,6 +100,9 @@ function portChecker( server ) {
   };
 }
 
-compose( map( portChecker ), readServerConfig )( server ).map(
-  ( callback ) => callback( compose( map( devServer ), map( compiler ), readWebpackConfig ))
-);
+export default ( devServer ) => {
+  compose( map( portChecker ), readServerConfig )( server ).map(
+    ( callback ) => callback( compose( map( devServer ), map( compiler ), readWebpackConfig ))
+  );
+};
+
