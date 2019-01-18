@@ -2,26 +2,27 @@
 
 'use strict';
 
-
 process.on( 'unhandledRejection', err => {
   throw err;
 });
 
-
 const chalk = require( 'chalk' );
 const spawn = require( 'cross-spawn' );
 const args = process.argv.slice( 2 );
-const scriptIndex = args.findIndex( x => {
-  return x === 'build' || x === 'dev' || x === 'start' || x === 'test' ||
-    x === 'server' || x === 'dll';
-});
+const defaultScript = [ 'init', 'dev', 'start', 'build', 'test', 'dll' ];
+const defaultArgs = [ '-ssr', '-dll', '-debug' ];
+const scriptIndex = args.findIndex( x => defaultScript.includes( x ));
 let script = scriptIndex === -1 ? args[0] : args[scriptIndex];
 const nodeArgs = scriptIndex > 0 ? args.slice( 0, scriptIndex ) : [];
 
-// dev alias server
-if ( script === 'server' ) {
-  script = 'dev';
-}
+
+// dev 单页面程序开发服务器
+//     -ssr 开发服务端渲染服务器
+//     -dll 开发编译dll
+// start 服务端渲染编译后启动生产服务端渲染服务器
+// build 纯静态程序编译
+// test 运行单元测试
+// dll 单独编译dll
 
 switch ( script ) {
   case '-v':
@@ -29,6 +30,7 @@ switch ( script ) {
     console.log( require( '../package.json' ).version );
     break;
   case 'dev':
+  case 'start':
   case 'build':
   case 'test':
   case 'dll': {
@@ -58,16 +60,39 @@ switch ( script ) {
     process.exit( result.status );
     break;
   }
-  default:
-    if ( script ) {
-      console.log( 'Unknown script "' + script + '".' );
-      console.log( 'Perhaps you need to update kiwiai?' );
+  default: {
+    const isScript = script && script.indexOf( '-' ) !== 0;
+    const execArgs = args.filter(( arg ) => defaultArgs.includes( arg )).join( ' ' );
+    if ( isScript ) {
+      const maybes = defaultScript.filter(
+        ( key ) => key.indexOf( script ) > -1 || script.indexOf( key ) > -1
+      );
+      if ( maybes.length ) {
+        console.log();
+        console.log( 'Do you mean below ?' );
+        maybes.forEach(( key ) => {
+          console.log( chalk.yellow( `  kiwiai ${key} ${execArgs}` ));
+        });
+        console.log();
+      } else {
+        console.log();
+        console.log( 'Unknown script "' + script + '".' );
+        console.log( 'Perhaps you need to update kiwiai ?' );
+        console.log();
+      }
     } else {
-      console.log( 'Do you mean ' + chalk.gray( 'kiwiai dev' ) + '?' );
-      console.log( chalk.gray( 'Also you can try:' ));
-      console.log( chalk.gray( 'kiwiai build' ));
-      console.log( chalk.gray( 'kiwiai test' ));
-      console.log( chalk.gray( 'kiwiai dll' ));
+      console.log();
+      console.log( 'Unknown script.' );
+      console.log();
+      console.log( 'Do you mean ' + chalk.yellow( `kiwiai dev ${execArgs}` ) + ' ?' );
+      console.log( 'Also you can try:' );
+      console.log( chalk.yellow( `  kiwiai init` ));
+      console.log( chalk.yellow( `  kiwiai start` ));
+      console.log( chalk.yellow( `  kiwiai build` ));
+      console.log( chalk.yellow( `  kiwiai test` ));
+      console.log( chalk.yellow( `  kiwiai dll` ));
+      console.log();
     }
     break;
+  }
 }
