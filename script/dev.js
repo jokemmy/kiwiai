@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-require( '../utils/babelRegister' );
+require( 'kiwiai-utils/lib/babelRegister' );
 
 'use strict';
 
@@ -8,18 +8,22 @@ process.on( 'unhandledRejection', err => {
   throw err;
 });
 
+// 项目开发环境变量
 process.env.BABEL_ENV = 'development';
 process.env.NODE_ENV = 'development';
 
+// 参数
 const args = process.argv.slice( 2 );
-const forever = require( '../utils/forever' );
+const { fork } = require( 'kiwiai-utils' );
 
-// 进程自重启
-forever( __filename, function() {
-  // 主逻辑只运行一次
+// 用当前文件创建子进程
+fork( __filename );
+
+// 子进程逻辑
+if ( process.send ) {
   if ( args.indexOf( '-ssr' ) === -1 ) {
-    require( './runServer' )( require( './devServer' ));
+    require( './devServer' )
   } else {
-    require( './runServer' )( require( './devServerSSR' ));
+    require( './devServerSSR' )
   }
-});
+}

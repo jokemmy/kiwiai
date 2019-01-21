@@ -7,19 +7,17 @@ import send, { RESTART }  from './send';
 //                --inspect
 
 let usedPorts = [];
-function start( path: string ) {
+function forkChild( path: string ): void {
 
   // from af-webpack / fork
   // 重置调试器端口
   // 我感觉这个估计用不到
   const execArgv = process.execArgv.slice( 0 );
   const inspectArgvIndex = execArgv.findIndex( argv =>
-    argv.includes( '--inspect-brk' )
+    argv.includes( '--inspect-brk' ),
   );
 
   // 重置端口加一
-  // 程序如果写的比较复杂,子线程比较多
-  // 调试每一个子线程就必须把子线程的调试端口分开(分别加 1 )
   if ( inspectArgvIndex > -1 ) {
     const inspectArgv = execArgv[inspectArgvIndex];
     execArgv.splice(
@@ -47,19 +45,10 @@ function start( path: string ) {
     // 如果自己用不上就向父进程传递消息
     if ( data && data.type === RESTART ) {
       childProcess.kill();
-      start( path );
+      forkChild( path );
     }
     send( data );
   });
-
 }
 
-
-export default function( path: string, callback: function ) {
-  // 子进程才有 send
-  if ( !process.send ) {
-    start( path );
-  } else {
-    callback();
-  }
-}
+export default forkChild;
