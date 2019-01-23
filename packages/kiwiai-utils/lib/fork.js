@@ -50,6 +50,7 @@ function forkChild(path) {
   });
   childProcess.on('message', function (data) {
     // 如果自己用不上就向父进程传递消息
+    // 对消息做出相应的操作
     if (data && data.type === _send.RESTART) {
       childProcess.kill();
       forkChild(path);

@@ -1,2 +1,6 @@
 
-console.log("1:", 1)
+
+import { getConfig } from 'kiwiai-utils';
+
+
+console.log("options:", getConfig())

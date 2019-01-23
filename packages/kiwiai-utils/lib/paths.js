@@ -24,11 +24,11 @@ var CONFIG_PATH = ['', 'config'].map(function (dir) {
 
 exports.CONFIG_PATH = CONFIG_PATH;
 var CONFIG_FILES = CONFIG_PATH.map(function (dir) {
-  return ['.kwarc', '.kiwiairc', '.kiwiairc.js'].map(function (name) {
+  return ['.kwarc', '.kiwiairc', '.kwarc.js', '.kiwiairc.js'].map(function (name) {
     return (0, _path.resolve)(dir, name);
   });
 }).reduce(function (arr, item) {
-  return arr.concat[item];
+  return arr.concat(item);
 }, []); // const MOCK_CONFIG = 'kiwiai.mock.js';
 // const DEV_CONFIG = 'webpack.config.dev.js';
 // const DLL_CONFIG = 'webpack.config.dll.js';

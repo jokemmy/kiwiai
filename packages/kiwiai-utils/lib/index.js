@@ -15,9 +15,17 @@ Object.defineProperty(exports, "compose", {
     return _compose2.default;
   }
 });
+Object.defineProperty(exports, "getOptions", {
+  enumerable: true,
+  get: function get() {
+    return _getOptions2.default;
+  }
+});
 
 var _fork2 = _interopRequireDefault(require("./fork"));
 
 var _compose2 = _interopRequireDefault(require("./compose"));
+
+var _getOptions2 = _interopRequireDefault(require("./getOptions"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }

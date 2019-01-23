@@ -17,9 +17,9 @@ export const CONFIG_PATH: Array<string> = [ '', 'config' ].map(( dir ) => {
 // 推荐简易的JSON文件, 需要自定义时使用 js 文件
 // 从左到右优先加载
 export const CONFIG_FILES: Array<string> = CONFIG_PATH.map(( dir ) => {
-  return [ '.kwarc', '.kiwiairc', '.kiwiairc.js' ]
+  return [ '.kwarc', '.kiwiairc', '.kwarc.js', '.kiwiairc.js' ]
     .map(( name ) => resolve( dir, name ));
-}).reduce(( arr, item ) => arr.concat[item], []);
+}).reduce(( arr, item ) => arr.concat( item ), []);
 
 
 // const MOCK_CONFIG = 'kiwiai.mock.js';

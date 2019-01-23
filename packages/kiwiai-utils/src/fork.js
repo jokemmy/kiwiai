@@ -43,6 +43,7 @@ function forkChild( path: string ): void {
   const childProcess = fork( path, process.argv.slice( 2 ), { execArgv });
   childProcess.on( 'message', ( data ) => {
     // 如果自己用不上就向父进程传递消息
+    // 对消息做出相应的操作
     if ( data && data.type === RESTART ) {
       childProcess.kill();
       forkChild( path );
