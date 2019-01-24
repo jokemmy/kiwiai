@@ -1,6 +1,12 @@
 {
   "parser": "babel-eslint",
-  "extends": "promise",
+  "plugins": [
+    "flowtype"
+  ],
+  "extends": [
+    "promise",
+    "plugin:flowtype/recommended"
+  ],
   "rules": {
     "no-console": [0],
     "consistent-return": [0]

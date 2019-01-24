@@ -1,5 +1,3 @@
-//@flow
-
 // import path from 'path';
 // import JSON5 from 'json5';
 // import chalk from 'chalk';
@@ -8,8 +6,6 @@
 // import mergeConfig from './mergeConfig';
 // import { CONFIG_FILES } from './paths';
 // import { printError } from './print';
-
-
-export default function mergeConfig( ...configs_: Array<{}> ): {} {
+export default function mergeConfig() {
   return {};
 }

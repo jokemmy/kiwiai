@@ -1,29 +1,19 @@
-"use strict";
+import { resolve } from 'path';
+import { realpathSync } from 'fs'; // 当前运行目录
 
-exports.__esModule = true;
-exports.resolveApp = resolveApp;
-exports.CONFIG_FILES = exports.CONFIG_PATH = exports.appDirectory = void 0;
-
-var _path = require("path");
-
-var _fs = require("fs");
-
-// 当前运行目录
-var appDirectory = (0, _fs.realpathSync)(process.cwd()); // 配置文件目录
+export var appDirectory = realpathSync(process.cwd()); // 配置文件目录
 // 预设两个目录, 方便开发配置文件管理, 避免根目录下配置文件过多
 // 从左到右优先加载
 
-exports.appDirectory = appDirectory;
-var CONFIG_PATH = ['', 'config'].map(function (dir) {
-  return (0, _path.resolve)(appDirectory, dir);
+export var CONFIG_PATH = ['', 'config'].map(function (dir) {
+  return resolve(appDirectory, dir);
 }); // 配置文件名称
 // 推荐简易的JSON文件, 需要自定义时使用 js 文件
 // 从左到右优先加载
 
-exports.CONFIG_PATH = CONFIG_PATH;
-var CONFIG_FILES = CONFIG_PATH.map(function (dir) {
+export var CONFIG_FILES = CONFIG_PATH.map(function (dir) {
   return ['.kwarc', '.kiwiairc', '.kwarc.js', '.kiwiairc.js'].map(function (name) {
-    return (0, _path.resolve)(dir, name);
+    return resolve(dir, name);
   });
 }).reduce(function (arr, item) {
   return arr.concat(item);
@@ -36,10 +26,8 @@ var CONFIG_FILES = CONFIG_PATH.map(function (dir) {
 //   return resolve( __dirname, relativePath );
 // }
 
-exports.CONFIG_FILES = CONFIG_FILES;
-
-function resolveApp(relativePath) {
-  return (0, _path.resolve)(appDirectory, relativePath);
+export function resolveApp(relativePath) {
+  return resolve(appDirectory, relativePath);
 } // export default {
 //   outputPath: 'dist',
 //   SEVER_CONFIG,

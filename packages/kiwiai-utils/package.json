@@ -11,12 +11,17 @@
   "homepage": "https://github.com/jokemmy/kiwiai#readme",
   "license": "ISC",
   "main": "lib/index.js",
+  "module": "es/index.js",
+  "jsnext:main": "es/index.js",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
   },
   "files": [
-    "lib"
+    "dist",
+    "lib",
+    "es",
+    "src"
   ],
   "publishConfig": {
     "registry": "http://registry.npmjs.org/"
@@ -28,8 +33,11 @@
   "scripts": {
     "clean": "rimraf lib",
     "test": "cross-env BABEL_ENV=commonjs jest",
-    "build": "npm run clean && npm run build:commonjs",
-    "build:commonjs": "cross-env BABEL_ENV=commonjs babel src --out-dir lib",
+    "build": "npm run clean && npm run build:es && npm run build:commonjs && npm run build:flow && npm run build:flow:es",
+    "build:es": "cross-env BABEL_ENV=es babel src --out-dir es --ignore '**/__tests__/**'",
+    "build:commonjs": "cross-env BABEL_ENV=commonjs babel src --out-dir lib --ignore '**/__tests__/**'",
+    "build:flow": "flow-copy-source -v -i '**/__tests__/**' src lib",
+    "build:flow:es": "flow-copy-source -v -i '**/__tests__/**' src es",
     "prepare": "npm run clean && npm run lint && npm run build",
     "lint": "eslint --ext .js src",
     "precommit": "npm run lint"
@@ -63,6 +71,8 @@
     "@babel/plugin-proposal-throw-expressions": "^7.0.0",
     "@babel/plugin-syntax-dynamic-import": "^7.0.0",
     "@babel/plugin-syntax-import-meta": "^7.0.0",
+    "@babel/plugin-transform-flow-strip-types": "^7.2.3",
+    "@babel/plugin-transform-modules-commonjs": "^7.2.0",
     "@babel/polyfill": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
     "@babel/preset-flow": "^7.0.0",
@@ -73,6 +83,8 @@
     "eslint-config-promise": "^2.0.1",
     "eslint-plugin-flowtype": "^3.2.1",
     "eslint-plugin-import": "^2.14.0",
+    "flow-bin": "^0.91.0",
+    "flow-copy-source": "^2.0.2",
     "jest": "^23.6.0",
     "rimraf": "^2.6.3"
   }

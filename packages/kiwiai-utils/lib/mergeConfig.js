@@ -1,4 +1,7 @@
-//@flow
+"use strict";
+
+exports.__esModule = true;
+exports.default = mergeConfig;
 
 // import path from 'path';
 // import JSON5 from 'json5';
@@ -8,8 +11,8 @@
 // import mergeConfig from './mergeConfig';
 // import { CONFIG_FILES } from './paths';
 // import { printError } from './print';
-
-
-export default function mergeConfig( ...configs_: Array<{}> ): {} {
+function mergeConfig() {
   return {};
 }
+
+module.exports = exports["default"];

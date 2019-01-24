@@ -1,9 +1,4 @@
-"use strict";
-
-exports.__esModule = true;
-exports.default = compose;
-
-function compose() {
+export default function compose() {
   for (var _len = arguments.length, funcs = new Array(_len), _key = 0; _key < _len; _key++) {
     funcs[_key] = arguments[_key];
   }
@@ -26,5 +21,3 @@ function compose() {
     }, last.apply(void 0, arguments));
   };
 }
-
-module.exports = exports["default"];

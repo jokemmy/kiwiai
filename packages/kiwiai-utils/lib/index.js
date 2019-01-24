@@ -1,31 +1,19 @@
 "use strict";
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "fork", {
-  enumerable: true,
-  get: function get() {
-    return _fork2.default;
-  }
-});
-Object.defineProperty(exports, "compose", {
-  enumerable: true,
-  get: function get() {
-    return _compose2.default;
-  }
-});
-Object.defineProperty(exports, "getOptions", {
-  enumerable: true,
-  get: function get() {
-    return _getOptions2.default;
-  }
-});
+exports.__esModule = true;
+exports.getConfig = exports.compose = exports.fork = void 0;
 
-var _fork2 = _interopRequireDefault(require("./fork"));
+var _fork = _interopRequireDefault(require("./fork"));
 
-var _compose2 = _interopRequireDefault(require("./compose"));
+var _compose = _interopRequireDefault(require("./compose"));
 
-var _getOptions2 = _interopRequireDefault(require("./getOptions"));
+var _getConfig = _interopRequireDefault(require("./getConfig"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var fork = _fork.default;
+exports.fork = fork;
+var compose = _compose.default;
+exports.compose = compose;
+var getConfig = _getConfig.default;
+exports.getConfig = getConfig;
