@@ -7,5 +7,9 @@
 [lints]
 
 [options]
+esproposal.export_star_as=enable
+esproposal.optional_chaining=enable
+esproposal.nullish_coalescing=enable
+module.ignore_non_literal_requires=true
 
 [strict]

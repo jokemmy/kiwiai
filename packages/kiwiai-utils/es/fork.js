@@ -1,10 +1,11 @@
 import { fork } from 'child_process';
-import send, { RESTART } from './send'; // nodejs 调试参数 --inspect-brk 程序开始短点
+import send, { RESTART } from './send';
+import { log } from './print'; // nodejs 调试参数 --inspect-brk 程序开始短点
 //                --inspect
 
 var usedPorts = [];
 
-function forkChild(path) {
+function forkChild(name, path) {
   // from af-webpack / fork
   // 重置调试器端口
   // 我感觉这个估计用不到
@@ -31,6 +32,10 @@ function forkChild(path) {
       usedPorts.push(port);
       return "--inspect-brk=".concat(port);
     }));
+  }
+
+  if (process.env.NODE_ENV) {
+    log("Forking ".concat(process.env.NODE_ENV, " server: ").concat(name));
   } // 获取参数从第二个字符串开始
 
 
@@ -42,10 +47,10 @@ function forkChild(path) {
     // 对消息做出相应的操作
     if (data && data.type === RESTART) {
       childProcess.kill();
-      forkChild(path);
+      forkChild(name, path);
     }
 
-    send(data);
+    send(name, data);
   });
 }
 

@@ -30,17 +30,22 @@ function getConfig(defaultConfig) {
 
 
   if (!configPath) {
-    (0, _print.printError)(_chalk.default.green('Config not found.'));
+    (0, _print.error)(_chalk.default.green('Config file not found: ${configPath}'));
     return null;
-  } // 读取文件
+  }
 
+  (0, _print.log)("Reading config file: ".concat(configPath)); // 读取文件
 
-  if (ext === '.js') {
-    delete require.cache[configPath];
-    config = require(configPath); // eslint-disable-line
-  } else {
-    var fileContent = (0, _fs.readFileSync)(configPath, 'utf-8');
-    config = _json.default.parse((0, _stripJsonComments.default)(fileContent));
+  try {
+    if (ext === '.js') {
+      delete require.cache[configPath];
+      config = require(configPath);
+    } else {
+      var fileContent = (0, _fs.readFileSync)(configPath, 'utf-8');
+      config = _json.default.parse((0, _stripJsonComments.default)(fileContent));
+    }
+  } catch (err) {
+    (0, _print.error)(err);
   }
 
   return (0, _mergeConfig.default)(defaultConfig || {}, config);

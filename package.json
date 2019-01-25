@@ -27,7 +27,7 @@
     "lib"
   ],
   "scripts": {
-    "dev": "node ./bin/kiwiai.js dev",
+    "dev": "cross-env DEBUG=* node './bin/kiwiai.js' dev",
     "build": "rimraf lib && babel utils --out-dir lib && chmod a+x bin/kiwiai.js",
     "lint": "eslint --ext .js src"
   },
@@ -61,12 +61,15 @@
     "@babel/preset-flow": "^7.0.0",
     "babel-eslint": "^10.0.1",
     "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-import": "^1.11.0",
+    "cross-env": "^5.2.0",
     "debug": "^4.1.1",
     "eslint": "^5.12.0",
     "eslint-config-promise": "^2.0.1",
     "eslint-plugin-flowtype": "^3.2.1",
     "eslint-plugin-import": "^2.14.0",
     "flow-bin": "^0.91.0",
-    "lerna": "^3.10.2"
+    "lerna": "^3.10.2",
+    "rimraf": "^2.6.3"
   }
 }

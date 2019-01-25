@@ -1,21 +1,32 @@
 // @flow
 
-export function println( ...messages: Array<string> ): void {
-  if ( messages.length > 0 ) {
-    messages.forEach(( message ) => {
-      console.log( message );
-    });
-  } else {
-    console.log();
+import kwaDebug from 'debug';
+
+
+export const debug = kwaDebug( 'KWA' );
+
+export function exit( message?: string ) {
+  if ( message ) {
+    debug( message );
   }
 }
 
-export function printError( error: string | { message: string }): void {
-  let text = error;
-  if ( typeof error === 'object' ) {
-    text = error.message;
+export function log( ...messages: Array<string> ): void {
+  if ( messages.length > 0 ) {
+    messages.forEach(( message ) => {
+      debug( message );
+    });
+  } else {
+    debug();
   }
-  console.log();
-  console.log( text );
-  console.log();
+}
+
+export function error( error: string | Error ): void {
+  let text = error;
+  if ( error instanceof Error ) {
+    text = error.stack || error.message;
+  }
+  debug();
+  debug( text );
+  debug();
 }

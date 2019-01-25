@@ -7,13 +7,15 @@ var _child_process = require("child_process");
 
 var _send = _interopRequireWildcard(require("./send"));
 
+var _print = require("./print");
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
 // nodejs 调试参数 --inspect-brk 程序开始短点
 //                --inspect
 var usedPorts = [];
 
-function forkChild(path) {
+function forkChild(name, path) {
   // from af-webpack / fork
   // 重置调试器端口
   // 我感觉这个估计用不到
@@ -40,6 +42,10 @@ function forkChild(path) {
       usedPorts.push(port);
       return "--inspect-brk=".concat(port);
     }));
+  }
+
+  if (process.env.NODE_ENV) {
+    (0, _print.log)("Forking ".concat(process.env.NODE_ENV, " server: ").concat(name));
   } // 获取参数从第二个字符串开始
 
 
@@ -51,10 +57,10 @@ function forkChild(path) {
     // 对消息做出相应的操作
     if (data && data.type === _send.RESTART) {
       childProcess.kill();
-      forkChild(path);
+      forkChild(name, path);
     }
 
-    (0, _send.default)(data);
+    (0, _send.default)(name, data);
   });
 }
 

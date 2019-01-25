@@ -1,33 +1,40 @@
 "use strict";
 
 exports.__esModule = true;
-exports.println = println;
-exports.printError = printError;
+exports.log = log;
+exports.error = error;
+exports.debug = void 0;
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+var _debug = _interopRequireDefault(require("debug"));
 
-function println() {
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var debug = (0, _debug.default)('KWA');
+exports.debug = debug;
+
+function log() {
   for (var _len = arguments.length, messages = new Array(_len), _key = 0; _key < _len; _key++) {
     messages[_key] = arguments[_key];
   }
 
   if (messages.length > 0) {
     messages.forEach(function (message) {
-      console.log(message);
+      debug(message);
     });
   } else {
-    console.log();
+    debug();
   }
 }
 
-function printError(error) {
+function error(error) {
   var text = error;
 
-  if (_typeof(error) === 'object') {
-    text = error.message;
+  if (error instanceof Error) {
+    text = error.stack || error.message;
   }
 
-  console.log();
-  console.log(text);
-  console.log();
+  console.log("text:", text);
+  debug();
+  debug(text);
+  debug();
 }

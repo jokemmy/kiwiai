@@ -1,21 +1,26 @@
 // @flow
 
-export function println( ...messages: Array<string> ): void {
+import kwaDebug from 'debug';
+
+export const debug = kwaDebug( 'KWA' );
+
+export function log( ...messages: Array<string> ): void {
   if ( messages.length > 0 ) {
     messages.forEach(( message ) => {
-      console.log( message );
+      debug( message );
     });
   } else {
-    console.log();
+    debug();
   }
 }
 
-export function printError( error: string | { message: string }): void {
+export function error( error: string | Error ): void {
   let text = error;
-  if ( typeof error === 'object' ) {
-    text = error.message;
+  if ( error instanceof Error ) {
+    text = error.stack || error.message;
   }
-  console.log();
-  console.log( text );
-  console.log();
+  console.log("text:", text)
+  debug();
+  debug( text );
+  debug();
 }

@@ -1,6 +1,10 @@
-import forkTarget from './fork';
-import composeTarget from './compose';
-import getConfigTarget from './getConfig';
-export var fork = forkTarget;
-export var compose = composeTarget;
-export var getConfig = getConfigTarget;
+import Tfork from './fork';
+import { debug as Tdebug } from './print';
+import Tcompose from './compose';
+import TgetConfig from './getConfig';
+import TbabelRegister from './babelRegister';
+export var fork = Tfork;
+export var debug = Tdebug;
+export var compose = Tcompose;
+export var getConfig = TgetConfig;
+export var babelRegister = TbabelRegister;

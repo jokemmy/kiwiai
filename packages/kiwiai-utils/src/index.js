@@ -1,9 +1,14 @@
 //@flow
 
-import forkTarget from './fork';
-import composeTarget from './compose';
-import getConfigTarget from './getConfig';
+import Tfork from './fork';
+import { debug as Tdebug } from './print';
+import Tcompose from './compose';
+import TgetConfig from './getConfig';
+import TbabelRegister from './babelRegister';
 
-export const fork: typeof forkTarget = forkTarget;
-export const compose: typeof composeTarget = composeTarget;
-export const getConfig: typeof getConfigTarget = getConfigTarget;
+
+export const fork: typeof Tfork = Tfork;
+export const debug: typeof Tdebug = Tdebug;
+export const compose: typeof Tcompose = Tcompose;
+export const getConfig: typeof TgetConfig = TgetConfig;
+export const babelRegister: typeof TbabelRegister = TbabelRegister;

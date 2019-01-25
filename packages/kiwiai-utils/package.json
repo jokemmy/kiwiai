@@ -31,7 +31,7 @@
     "url": "git+https://github.com/jokemmy/kiwiai.git"
   },
   "scripts": {
-    "clean": "rimraf lib",
+    "clean": "rimraf lib es",
     "test": "cross-env BABEL_ENV=commonjs jest",
     "build": "npm run clean && npm run build:es && npm run build:commonjs && npm run build:flow && npm run build:flow:es",
     "build:es": "cross-env BABEL_ENV=es babel src --out-dir es --ignore '**/__tests__/**'",

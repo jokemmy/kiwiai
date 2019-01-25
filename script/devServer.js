@@ -1,5 +1,6 @@
 //@flow
 
-import { getConfig } from 'kiwiai-utils';
+import { getConfig, debug } from 'kiwiai-utils';
 
 console.log( "options:", getConfig());
+debug( 'asdasd' );

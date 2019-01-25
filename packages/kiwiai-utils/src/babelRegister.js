@@ -1,4 +1,4 @@
 
-require( '@babel/register' )({
-  extensions: ['.js']
-});
+export default function( opt ) {
+  require( '@babel/register' )( opt );
+}

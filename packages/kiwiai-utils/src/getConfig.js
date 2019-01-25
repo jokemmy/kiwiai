@@ -7,7 +7,7 @@ import { existsSync, readFileSync } from 'fs';
 import stripJsonComments from 'strip-json-comments';
 import mergeConfig from './mergeConfig';
 import { CONFIG_FILES } from './paths';
-import { printError } from './print';
+import { error, log, exit } from './print';
 
 
 export default function getConfig( defaultConfig?: { a: number }): {} | null {
@@ -20,17 +20,24 @@ export default function getConfig( defaultConfig?: { a: number }): {} | null {
 
   // 没有配置文件报错
   if ( !configPath ) {
-    printError( chalk.green( 'Config not found.' ));
+    error( chalk.green( `Config file not found: ${configPath}` ));
     return null;
   }
 
+  log( `Reading config file: ${configPath}` );
+
   // 读取文件
-  if ( ext === '.js' ) {
-    delete require.cache[configPath];
-    config = require( configPath ); // eslint-disable-line
-  } else {
-    const fileContent = readFileSync( configPath, 'utf-8' );
-    config = JSON5.parse( stripJsonComments( fileContent ));
+  try {
+    if ( ext === '.js' ) {
+      delete require.cache[configPath];
+      config = require( configPath );
+    } else {
+      const fileContent = readFileSync( configPath, 'utf-8' );
+      config = JSON5.parse( stripJsonComments( fileContent ));
+    }
+  } catch( err ) {
+    error( err );
+    exit();
   }
 
   return mergeConfig( defaultConfig || {}, config );
