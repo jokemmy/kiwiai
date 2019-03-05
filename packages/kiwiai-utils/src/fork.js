@@ -6,7 +6,7 @@ import { log }  from './print';
 
 
 // nodejs 调试参数 --inspect-brk 程序开始短点
-//                --inspect
+//                 --inspect
 
 let usedPorts = [];
 function forkChild( name: string, path: string ): void {
@@ -48,17 +48,25 @@ function forkChild( name: string, path: string ): void {
 
     log( `Forking ${process.env.NODE_ENV} server: ${name}` );
 
-    // 替换 name
+    // 找 name 参数
+    const pName = `-name=${name}`;
     const nameArgvIndex = argvs.findIndex(
       argv => argv.includes( '-name=' )
     );
-    const nameArgv = argvs[nameArgvIndex];
-    argvs.splice(
-      nameArgvIndex, 1, nameArgv.replace( /^-name=/, `-name=${name}` )
-    );
 
-    // 给进程取个名字方便调试
-    setProcessName( argvs );
+    if ( nameArgvIndex > -1 ) {
+      argvs.splice(
+        nameArgvIndex, 1, argvs[nameArgvIndex].replace( /^-name=/, pName )
+      );
+    }
+
+    // 没有就添加
+    else if ( nameArgvIndex === -1 ) {
+      argvs.push( pName );
+    }
+
+    // 设置进程名字方便调试
+    setProcessName( name );
   }
 
   const childProcess = fork( path, argvs, { execArgv });

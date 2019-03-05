@@ -9,6 +9,7 @@ export function exit( message?: string ) {
   if ( message ) {
     debug( message );
   }
+  process.exit( 1 );
 }
 
 export function log( ...messages: Array<string> ): void {
@@ -26,7 +27,7 @@ export function error( error: string | Error ): void {
   if ( error instanceof Error ) {
     text = error.stack || error.message;
   }
-  debug();
+  debug( '' );
   debug( text );
-  debug();
+  debug( '' );
 }

@@ -5,14 +5,12 @@ exports.default = void 0;
 
 var _child_process = require("child_process");
 
-var _send = _interopRequireWildcard(require("./send"));
+var _send = require("./send");
 
 var _print = require("./print");
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
-
 // nodejs 调试参数 --inspect-brk 程序开始短点
-//                --inspect
+//                 --inspect
 var usedPorts = [];
 
 function forkChild(name, path) {
@@ -42,25 +40,42 @@ function forkChild(name, path) {
       usedPorts.push(port);
       return "--inspect-brk=".concat(port);
     }));
-  }
-
-  if (process.env.NODE_ENV) {
-    (0, _print.log)("Forking ".concat(process.env.NODE_ENV, " server: ").concat(name));
   } // 获取参数从第二个字符串开始
 
 
-  var childProcess = (0, _child_process.fork)(path, process.argv.slice(2), {
+  var argvs = process.argv.slice(2); // 调试功能
+
+  if (process.env.NODE_ENV === 'development') {
+    (0, _print.log)("Forking ".concat(process.env.NODE_ENV, " server: ").concat(name)); // 找 name 参数
+
+    var pName = "-name=".concat(name);
+    var nameArgvIndex = argvs.findIndex(function (argv) {
+      return argv.includes('-name=');
+    });
+
+    if (nameArgvIndex > -1) {
+      argvs.splice(nameArgvIndex, 1, argvs[nameArgvIndex].replace(/^-name=/, pName));
+    } // 没有就添加
+    else if (nameArgvIndex === -1) {
+        argvs.push(pName);
+      } // 设置进程名字方便调试
+
+
+    (0, _send.setProcessName)(name);
+  }
+
+  var childProcess = (0, _child_process.fork)(path, argvs, {
     execArgv: execArgv
   });
   childProcess.on('message', function (data) {
     // 如果自己用不上就向父进程传递消息
     // 对消息做出相应的操作
-    if (data && data.type === _send.RESTART) {
+    if ((data === null || data === void 0 ? void 0 : data.type) === _send.RESTART) {
       childProcess.kill();
       forkChild(name, path);
     }
 
-    (0, _send.default)(name, data);
+    (0, _send.send)(data);
   });
 }
 

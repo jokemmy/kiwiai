@@ -1,6 +1,7 @@
 "use strict";
 
 exports.__esModule = true;
+exports.exit = exit;
 exports.log = log;
 exports.error = error;
 exports.debug = void 0;
@@ -11,6 +12,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var debug = (0, _debug.default)('KWA');
 exports.debug = debug;
+
+function exit(message) {
+  if (message) {
+    debug(message);
+  }
+
+  process.exit(0);
+}
 
 function log() {
   for (var _len = arguments.length, messages = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -33,8 +42,7 @@ function error(error) {
     text = error.stack || error.message;
   }
 
-  console.log("text:", text);
-  debug();
+  debug('');
   debug(text);
-  debug();
+  debug('');
 }

@@ -9,7 +9,7 @@ process.on( 'unhandledRejection', err => {
 
 // 项目开发环境变量
 process.env.BABEL_ENV = 'development';
-process.env.NODE_ENV = 'production';
+process.env.NODE_ENV = 'development';
 
 // 参数
 const args = process.argv.slice( 2 );

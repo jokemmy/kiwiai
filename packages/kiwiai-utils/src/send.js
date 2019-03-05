@@ -10,12 +10,11 @@ export const RESTART = 'RESTART';
 
 
 let processName = 'Child';
-export function setProcessName( argvs: Array<string> ) {
-  const argv = argvs.find(( argv ) => /^-name=/.test( argv )) || '';
-  if ( argv ) {
-    processName = argv.replace( /^-name=/, '' );
+export function setProcessName( name ) {
+  if ( name ) {
+    processName = name;
   } else {
-    log( `Process name not found, use default name: ${processName}` );
+    log( `Process name not found, will use default name: ${processName}` );
   }
 }
 

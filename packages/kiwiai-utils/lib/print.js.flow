@@ -2,7 +2,15 @@
 
 import kwaDebug from 'debug';
 
+
 export const debug = kwaDebug( 'KWA' );
+
+export function exit( message?: string ) {
+  if ( message ) {
+    debug( message );
+  }
+  process.exit( 0 );
+}
 
 export function log( ...messages: Array<string> ): void {
   if ( messages.length > 0 ) {
@@ -19,8 +27,7 @@ export function error( error: string | Error ): void {
   if ( error instanceof Error ) {
     text = error.stack || error.message;
   }
-  console.log("text:", text)
-  debug();
+  debug( '' );
   debug( text );
-  debug();
+  debug( '' );
 }

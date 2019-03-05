@@ -27,7 +27,7 @@
     "lib"
   ],
   "scripts": {
-    "dev": "cross-env DEBUG=* node './bin/kiwiai.js' dev",
+    "dev": "cross-env DEBUG=KWA node './bin/kiwiai.js' dev",
     "build": "rimraf lib && babel utils --out-dir lib && chmod a+x bin/kiwiai.js",
     "lint": "eslint --ext .js src"
   },

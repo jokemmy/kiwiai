@@ -8,10 +8,22 @@ export const DONE = 'DONE';
 export const STARTING = 'STARTING';
 export const RESTART = 'RESTART';
 
-export default function send( name: string, message: string ) {
+
+let processName = 'Child';
+export function setProcessName( name ) {
+  if ( name ) {
+    processName = name;
+  } else {
+    log( `Process name not found, will use default name: ${processName}` );
+  }
+}
+
+
+type ProcessData = { type: string };
+export function send( data: ProcessData ) {
   const processSend = process.send;
   if ( processSend ) {
-    log( `Process[${name}]:send ${JSON.stringify( message )}` );
-    processSend( message );
+    log( `Process[${processName}]:send ${JSON.stringify( data )}` );
+    processSend( data );
   }
 }

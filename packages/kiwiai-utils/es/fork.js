@@ -1,7 +1,7 @@
 import { fork } from 'child_process';
-import send, { RESTART } from './send';
+import { RESTART, setProcessName, send } from './send';
 import { log } from './print'; // nodejs 调试参数 --inspect-brk 程序开始短点
-//                --inspect
+//                 --inspect
 
 var usedPorts = [];
 
@@ -32,25 +32,42 @@ function forkChild(name, path) {
       usedPorts.push(port);
       return "--inspect-brk=".concat(port);
     }));
-  }
-
-  if (process.env.NODE_ENV) {
-    log("Forking ".concat(process.env.NODE_ENV, " server: ").concat(name));
   } // 获取参数从第二个字符串开始
 
 
-  var childProcess = fork(path, process.argv.slice(2), {
+  var argvs = process.argv.slice(2); // 调试功能
+
+  if (process.env.NODE_ENV === 'development') {
+    log("Forking ".concat(process.env.NODE_ENV, " server: ").concat(name)); // 找 name 参数
+
+    var pName = "-name=".concat(name);
+    var nameArgvIndex = argvs.findIndex(function (argv) {
+      return argv.includes('-name=');
+    });
+
+    if (nameArgvIndex > -1) {
+      argvs.splice(nameArgvIndex, 1, argvs[nameArgvIndex].replace(/^-name=/, pName));
+    } // 没有就添加
+    else if (nameArgvIndex === -1) {
+        argvs.push(pName);
+      } // 设置进程名字方便调试
+
+
+    setProcessName(name);
+  }
+
+  var childProcess = fork(path, argvs, {
     execArgv: execArgv
   });
   childProcess.on('message', function (data) {
     // 如果自己用不上就向父进程传递消息
     // 对消息做出相应的操作
-    if (data && data.type === RESTART) {
+    if ((data === null || data === void 0 ? void 0 : data.type) === RESTART) {
       childProcess.kill();
       forkChild(name, path);
     }
 
-    send(name, data);
+    send(data);
   });
 }
 

@@ -1,5 +1,12 @@
 import kwaDebug from 'debug';
 export var debug = kwaDebug('KWA');
+export function exit(message) {
+  if (message) {
+    debug(message);
+  }
+
+  process.exit(0);
+}
 export function log() {
   for (var _len = arguments.length, messages = new Array(_len), _key = 0; _key < _len; _key++) {
     messages[_key] = arguments[_key];
@@ -20,8 +27,7 @@ export function error(error) {
     text = error.stack || error.message;
   }
 
-  console.log("text:", text);
-  debug();
+  debug('');
   debug(text);
-  debug();
+  debug('');
 }
