@@ -32,5 +32,5 @@ if ( process.send ) {
 
 // 用当前文件创建子进程
 else {
-  fork( isSSR ? 'DevServerSideRender' : 'DevServer',  __filename );
+  fork( __filename, isSSR ? 'DevServerSideRender' : 'DevServer' );
 }
