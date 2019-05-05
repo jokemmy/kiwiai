@@ -13,7 +13,7 @@ var _print = require("./print");
 //                 --inspect
 var usedPorts = [];
 
-function forkChild(name, path) {
+function forkChild(path, name) {
   // from af-webpack / fork
   // 重置调试器端口
   // 我感觉这个估计用不到
@@ -72,7 +72,7 @@ function forkChild(name, path) {
     // 对消息做出相应的操作
     if ((data === null || data === void 0 ? void 0 : data.type) === _send.RESTART) {
       childProcess.kill();
-      forkChild(name, path);
+      forkChild(path, name);
     }
 
     (0, _send.send)(data);

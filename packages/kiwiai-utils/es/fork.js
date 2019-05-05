@@ -5,7 +5,7 @@ import { log } from './print'; // nodejs 调试参数 --inspect-brk 程序开始
 
 var usedPorts = [];
 
-function forkChild(name, path) {
+function forkChild(path, name) {
   // from af-webpack / fork
   // 重置调试器端口
   // 我感觉这个估计用不到
@@ -64,7 +64,7 @@ function forkChild(name, path) {
     // 对消息做出相应的操作
     if ((data === null || data === void 0 ? void 0 : data.type) === RESTART) {
       childProcess.kill();
-      forkChild(name, path);
+      forkChild(path, name);
     }
 
     send(data);

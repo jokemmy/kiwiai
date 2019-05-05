@@ -18,7 +18,7 @@ function exit(message) {
     debug(message);
   }
 
-  process.exit(0);
+  process.exit(1);
 }
 
 function log() {

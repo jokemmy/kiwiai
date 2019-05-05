@@ -9,7 +9,7 @@ import { log }  from './print';
 //                 --inspect
 
 let usedPorts = [];
-function forkChild( name: string, path: string ): void {
+function forkChild( path: string, name: string ): void {
 
   // from af-webpack / fork
   // 重置调试器端口
@@ -75,7 +75,7 @@ function forkChild( name: string, path: string ): void {
     // 对消息做出相应的操作
     if ( data?.type === RESTART ) {
       childProcess.kill();
-      forkChild( name, path );
+      forkChild( path, name );
     }
     send( data );
   });

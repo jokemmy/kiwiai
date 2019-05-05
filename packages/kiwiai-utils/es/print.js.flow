@@ -9,7 +9,7 @@ export function exit( message?: string ) {
   if ( message ) {
     debug( message );
   }
-  process.exit( 0 );
+  process.exit( 1 );
 }
 
 export function log( ...messages: Array<string> ): void {

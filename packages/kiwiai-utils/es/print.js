@@ -5,7 +5,7 @@ export function exit(message) {
     debug(message);
   }
 
-  process.exit(0);
+  process.exit(1);
 }
 export function log() {
   for (var _len = arguments.length, messages = new Array(_len), _key = 0; _key < _len; _key++) {
