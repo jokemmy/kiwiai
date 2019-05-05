@@ -1,0 +1,13 @@
+.DS_Store
+npm-debug.log*
+**/node_modules
+/lib
+/es
+/packages/**/lib
+/packages/**/es
+/.nyc_output
+/test/**/dist
+/analyze
+
+# tnpm cache directory
+/test/**/.cache
